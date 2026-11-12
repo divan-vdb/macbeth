@@ -18,6 +18,7 @@ The game was brought to life through a collective approach, bringing together co
 - **Live the play.** Act I's first three scenes are staged in the world. The witches meet at their cauldron, the Old Man tells of the battle by his fire, and you walk with Banquo to the sisters. You hear the prophecies, watch the sisters vanish, and Ross and Angus arrive with the news of Cawdor.
 - **Hear it.** Every character has a distinct voice. A mature old narrator, the Old Man, tells the story in between.
   - Narration, voices, the world's ambient sound and effects each have their own volume.
+  - Pause at any moment, even mid-line, and read the Folio while the game waits.
   - Any line, or a whole scene, can be skipped.
 - **Read it.** The Folio holds the whole play, all five acts.
   - Lines are pale until they are spoken in the game; then the Folio writes them in.
@@ -35,8 +36,9 @@ More is on the way: fist fights, sword training, the boar hunt, Forres and Inver
 - **Computer:**
   - WASD to walk, Shift to run, Space to jump; drag to look, scroll to zoom
   - E to take or read, 1–4 for weapons, Q to drink a tonic, M for the map
+  - P (or the pause button) pauses at any moment; in a scene, Esc pauses too
   - In a scene, Space or Enter skips to the next line
-- **Phone:** left thumb to walk (push further to run), drag to look, pinch to zoom, and tap the on-screen buttons.
+- **Phone:** left thumb to walk (push further to run), drag to look, pinch to zoom, and tap the on-screen buttons (the pause button is at the top).
 
 ## Run it on your own computer
 
@@ -54,7 +56,7 @@ Then open http://localhost:8080. You'll need an internet connection, because the
 - Physics: [Rapier](https://rapier.rs), in WebAssembly.
 - Sound effects, wind, fire and thunder are synthesised live with the Web Audio API.
 - Characters are built from Quaternius's CC0 modular characters, re-coloured and costumed in code. Cloaks and gowns are simulated cloth.
-- Voices are recorded with the open [Kokoro](https://github.com/thewh1teagle/kokoro-onnx) speech model (Apache 2.0). Each character has its own blend of voices and its own audio treatment.
+- Voices are recorded with the open [Kokoro](https://github.com/thewh1teagle/kokoro-onnx) speech model (Apache 2.0). Each character has its own blend of voices, then is aged and shaped with the [WORLD](https://github.com/JeremyCCHsu/Python-Wrapper-for-World-Vocoder) vocoder: the witches' rasp, croak and tremor, the Old Man's breath and waver.
 - Models and voices are stored as base64 inside `.json` files, so they load from any static host.
 
 ```

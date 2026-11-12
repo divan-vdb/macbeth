@@ -7,7 +7,7 @@
 "Sit closer to the fire, stranger. I am an old man now, and the cold has found my bones. But I remember that night on the heath... when the thunder rolled, and three strange sisters waited for a soldier coming home from war."
 ],
 "narration": true,
-"dur": 16.88
+"dur": 16.61
 },
 {
 "key": "1.1.0",
@@ -25,7 +25,7 @@
 "item": 1,
 "scene": "1.1",
 "aside": false,
-"dur": 4.41
+"dur": 4.47
 },
 {
 "key": "1.1.2",
@@ -37,7 +37,7 @@
 "item": 2,
 "scene": "1.1",
 "aside": false,
-"dur": 4.58
+"dur": 3.76
 },
 {
 "key": "1.1.3",
@@ -48,7 +48,7 @@
 "item": 3,
 "scene": "1.1",
 "aside": false,
-"dur": 2.59
+"dur": 1.97
 },
 {
 "key": "1.1.4",
@@ -59,7 +59,7 @@
 "item": 4,
 "scene": "1.1",
 "aside": false,
-"dur": 1.78
+"dur": 1.11
 },
 {
 "key": "1.1.5",
@@ -70,7 +70,7 @@
 "item": 5,
 "scene": "1.1",
 "aside": false,
-"dur": 1.66
+"dur": 1.46
 },
 {
 "key": "1.1.6",
@@ -81,7 +81,7 @@
 "item": 6,
 "scene": "1.1",
 "aside": false,
-"dur": 2.37
+"dur": 1.87
 },
 {
 "key": "1.1.7",
@@ -92,7 +92,7 @@
 "item": 7,
 "scene": "1.1",
 "aside": false,
-"dur": 2.19
+"dur": 2.1
 },
 {
 "key": "1.1.8",
@@ -103,7 +103,7 @@
 "item": 8,
 "scene": "1.1",
 "aside": false,
-"dur": 1.75
+"dur": 1.46
 },
 {
 "key": "1.1.9",
@@ -114,7 +114,7 @@
 "item": 9,
 "scene": "1.1",
 "aside": false,
-"dur": 1.4
+"dur": 1.03
 },
 {
 "key": "1.1.10",
@@ -126,7 +126,7 @@
 "item": 10,
 "scene": "1.1",
 "aside": false,
-"dur": 6.2
+"dur": 5.04
 },
 {
 "key": "1.1.11",
@@ -135,13 +135,23 @@
 "scene": "1.1"
 },
 {
+"key": "fx.11cackle",
+"who": "First Witch",
+"lines": [
+"cackles"
+],
+"fx": true,
+"say": "Ah, ha ha ha ha haaa!",
+"dur": 2.33
+},
+{
 "key": "n.11end",
 "who": "The Old Man",
 "lines": [
 "Fair is foul, and foul is fair. Remember those words, stranger. Before this tale is done, you will not know the one from the other... and neither will he."
 ],
 "narration": true,
-"dur": 11.16
+"dur": 12.23
 }
 ],
 "act1_s13b": [
@@ -160,7 +170,7 @@
 "item": 15,
 "scene": "1.3",
 "aside": false,
-"dur": 2.93
+"dur": 2.38
 },
 {
 "key": "1.3.16",
@@ -179,7 +189,7 @@
 "item": 16,
 "scene": "1.3",
 "aside": false,
-"dur": 22.14
+"dur": 21.28
 },
 {
 "key": "1.3.17",
@@ -190,7 +200,7 @@
 "item": 17,
 "scene": "1.3",
 "aside": false,
-"dur": 2.32
+"dur": 2.12
 },
 {
 "key": "1.3.18",
@@ -201,7 +211,7 @@
 "item": 18,
 "scene": "1.3",
 "aside": false,
-"dur": 3.68
+"dur": 4.59
 },
 {
 "key": "1.3.19",
@@ -212,7 +222,7 @@
 "item": 19,
 "scene": "1.3",
 "aside": false,
-"dur": 3.54
+"dur": 3.21
 },
 {
 "key": "1.3.20",
@@ -223,7 +233,7 @@
 "item": 20,
 "scene": "1.3",
 "aside": false,
-"dur": 3.61
+"dur": 2.94
 },
 {
 "key": "1.3.21",
@@ -244,7 +254,7 @@
 "item": 21,
 "scene": "1.3",
 "aside": false,
-"dur": 28.64
+"dur": 26.97
 },
 {
 "key": "1.3.22",
@@ -255,7 +265,7 @@
 "item": 22,
 "scene": "1.3",
 "aside": false,
-"dur": 1.16
+"dur": 0.75
 },
 {
 "key": "1.3.23",
@@ -266,7 +276,7 @@
 "item": 23,
 "scene": "1.3",
 "aside": false,
-"dur": 1.28
+"dur": 1.07
 },
 {
 "key": "1.3.24",
@@ -277,7 +287,7 @@
 "item": 24,
 "scene": "1.3",
 "aside": false,
-"dur": 1.59
+"dur": 0.93
 },
 {
 "key": "1.3.25",
@@ -288,7 +298,7 @@
 "item": 25,
 "scene": "1.3",
 "aside": false,
-"dur": 2.71
+"dur": 2.48
 },
 {
 "key": "1.3.26",
@@ -299,7 +309,7 @@
 "item": 26,
 "scene": "1.3",
 "aside": false,
-"dur": 2.85
+"dur": 2.49
 },
 {
 "key": "1.3.27",
@@ -311,7 +321,7 @@
 "item": 27,
 "scene": "1.3",
 "aside": false,
-"dur": 5.14
+"dur": 4.76
 },
 {
 "key": "1.3.28",
@@ -322,7 +332,7 @@
 "item": 28,
 "scene": "1.3",
 "aside": false,
-"dur": 2.75
+"dur": 2.53
 },
 {
 "key": "1.3.29",
@@ -341,13 +351,23 @@
 "item": 29,
 "scene": "1.3",
 "aside": false,
-"dur": 25.48
+"dur": 23.34
 },
 {
 "key": "1.3.30",
 "dir": "Witches vanish",
 "item": 30,
 "scene": "1.3"
+},
+{
+"key": "fx.13vanish",
+"who": "All",
+"lines": [
+"cackling, fading into the air"
+],
+"fx": true,
+"say": "Ah ha ha ha ha ha!",
+"dur": 2.09
 },
 {
 "key": "1.3.31",
@@ -359,7 +379,7 @@
 "item": 31,
 "scene": "1.3",
 "aside": false,
-"dur": 5.4
+"dur": 5.13
 },
 {
 "key": "1.3.32",
@@ -371,7 +391,7 @@
 "item": 32,
 "scene": "1.3",
 "aside": false,
-"dur": 5.85
+"dur": 5.41
 },
 {
 "key": "1.3.33",
@@ -384,7 +404,7 @@
 "item": 33,
 "scene": "1.3",
 "aside": false,
-"dur": 6.64
+"dur": 6.34
 },
 {
 "key": "1.3.34",
@@ -395,7 +415,7 @@
 "item": 34,
 "scene": "1.3",
 "aside": false,
-"dur": 2.25
+"dur": 1.75
 },
 {
 "key": "1.3.35",
@@ -406,7 +426,7 @@
 "item": 35,
 "scene": "1.3",
 "aside": false,
-"dur": 1.5
+"dur": 1.16
 },
 {
 "key": "1.3.36",
@@ -417,7 +437,7 @@
 "item": 36,
 "scene": "1.3",
 "aside": false,
-"dur": 3.17
+"dur": 2.85
 },
 {
 "key": "1.3.37",
@@ -428,7 +448,7 @@
 "item": 37,
 "scene": "1.3",
 "aside": false,
-"dur": 2.84
+"dur": 2.92
 }
 ],
 "act1_s13a": [
@@ -439,7 +459,7 @@
 "Banquo. As brave as Macbeth, and the steadier of the two. Mark him well, stranger. The sisters will have a word for him too."
 ],
 "narration": true,
-"dur": 9.71
+"dur": 10.57
 },
 {
 "key": "1.3.0",
@@ -456,7 +476,7 @@
 "item": 1,
 "scene": "1.3",
 "aside": false,
-"dur": 2.66
+"dur": 2.46
 },
 {
 "key": "1.3.2",
@@ -467,7 +487,7 @@
 "item": 2,
 "scene": "1.3",
 "aside": false,
-"dur": 1.8
+"dur": 1.53
 },
 {
 "key": "1.3.3",
@@ -478,7 +498,7 @@
 "item": 3,
 "scene": "1.3",
 "aside": false,
-"dur": 2.1
+"dur": 1.62
 },
 {
 "key": "1.3.4",
@@ -496,7 +516,17 @@
 "item": 4,
 "scene": "1.3",
 "aside": false,
-"dur": 18.44
+"dur": 23.09
+},
+{
+"key": "fx.13cackle1",
+"who": "First Witch",
+"lines": [
+"cackles"
+],
+"fx": true,
+"say": "Heh heh heh heh heh!",
+"dur": 1.73
 },
 {
 "key": "1.3.5",
@@ -507,7 +537,7 @@
 "item": 5,
 "scene": "1.3",
 "aside": false,
-"dur": 1.91
+"dur": 1.73
 },
 {
 "key": "1.3.6",
@@ -518,7 +548,7 @@
 "item": 6,
 "scene": "1.3",
 "aside": false,
-"dur": 2.01
+"dur": 1.36
 },
 {
 "key": "1.3.7",
@@ -529,7 +559,7 @@
 "item": 7,
 "scene": "1.3",
 "aside": false,
-"dur": 1.78
+"dur": 1.35
 },
 {
 "key": "1.3.8",
@@ -552,7 +582,7 @@
 "item": 8,
 "scene": "1.3",
 "aside": false,
-"dur": 24.15
+"dur": 22.69
 },
 {
 "key": "1.3.9",
@@ -563,7 +593,7 @@
 "item": 9,
 "scene": "1.3",
 "aside": false,
-"dur": 1.75
+"dur": 1.51
 },
 {
 "key": "1.3.10",
@@ -575,7 +605,17 @@
 "item": 10,
 "scene": "1.3",
 "aside": false,
-"dur": 4.18
+"dur": 3.65
+},
+{
+"key": "fx.13cackle2",
+"who": "Second Witch",
+"lines": [
+"cackles"
+],
+"fx": true,
+"say": "Hee hee hee hee hee!",
+"dur": 1.95
 },
 {
 "key": "1.3.11",
@@ -593,7 +633,7 @@
 "item": 12,
 "scene": "1.3",
 "aside": false,
-"dur": 3.12
+"dur": 3.22
 },
 {
 "key": "1.3.13",
@@ -609,7 +649,7 @@
 "item": 13,
 "scene": "1.3",
 "aside": false,
-"dur": 17.54
+"dur": 14.2
 }
 ],
 "act1_s13c": [
@@ -639,7 +679,7 @@
 "item": 39,
 "scene": "1.3",
 "aside": false,
-"dur": 28.3
+"dur": 26.29
 },
 {
 "key": "1.3.40",
@@ -653,7 +693,7 @@
 "item": 40,
 "scene": "1.3",
 "aside": false,
-"dur": 6.74
+"dur": 6.11
 },
 {
 "key": "1.3.41",
@@ -667,7 +707,7 @@
 "item": 41,
 "scene": "1.3",
 "aside": false,
-"dur": 7.95
+"dur": 7.66
 },
 {
 "key": "1.3.42",
@@ -678,7 +718,7 @@
 "item": 42,
 "scene": "1.3",
 "aside": false,
-"dur": 2.08
+"dur": 1.81
 },
 {
 "key": "1.3.43",
@@ -690,7 +730,7 @@
 "item": 43,
 "scene": "1.3",
 "aside": false,
-"dur": 4.3
+"dur": 4.01
 },
 {
 "key": "1.3.44",
@@ -708,7 +748,7 @@
 "item": 44,
 "scene": "1.3",
 "aside": false,
-"dur": 21.21
+"dur": 19.17
 },
 {
 "key": "1.3.45a",
@@ -720,7 +760,7 @@
 "item": 45,
 "scene": "1.3",
 "aside": true,
-"dur": 4.39
+"dur": 4.04
 },
 {
 "key": "1.3.45b",
@@ -731,7 +771,7 @@
 "item": 45,
 "scene": "1.3",
 "aside": false,
-"dur": 1.8
+"dur": 1.37
 },
 {
 "key": "1.3.45c",
@@ -744,7 +784,7 @@
 "item": 45,
 "scene": "1.3",
 "aside": false,
-"dur": 6.69
+"dur": 5.96
 },
 {
 "key": "1.3.46",
@@ -762,7 +802,7 @@
 "item": 46,
 "scene": "1.3",
 "aside": false,
-"dur": 17.93
+"dur": 16.85
 },
 {
 "key": "1.3.47a",
@@ -775,7 +815,7 @@
 "item": 47,
 "scene": "1.3",
 "aside": true,
-"dur": 6.19
+"dur": 5.29
 },
 {
 "key": "1.3.47b",
@@ -786,7 +826,7 @@
 "item": 47,
 "scene": "1.3",
 "aside": false,
-"dur": 2.14
+"dur": 1.64
 },
 {
 "key": "1.3.47c",
@@ -809,7 +849,7 @@
 "item": 47,
 "scene": "1.3",
 "aside": true,
-"dur": 36.7
+"dur": 31.93
 },
 {
 "key": "1.3.48",
@@ -820,7 +860,7 @@
 "item": 48,
 "scene": "1.3",
 "aside": false,
-"dur": 1.96
+"dur": 1.7
 },
 {
 "key": "1.3.49",
@@ -832,7 +872,7 @@
 "item": 49,
 "scene": "1.3",
 "aside": true,
-"dur": 5.57
+"dur": 4.54
 },
 {
 "key": "1.3.50",
@@ -845,7 +885,7 @@
 "item": 50,
 "scene": "1.3",
 "aside": false,
-"dur": 6.29
+"dur": 5.7
 },
 {
 "key": "1.3.51",
@@ -857,7 +897,7 @@
 "item": 51,
 "scene": "1.3",
 "aside": true,
-"dur": 4.74
+"dur": 3.9
 },
 {
 "key": "1.3.52",
@@ -868,7 +908,7 @@
 "item": 52,
 "scene": "1.3",
 "aside": false,
-"dur": 2.55
+"dur": 2.38
 },
 {
 "key": "1.3.53",
@@ -885,7 +925,7 @@
 "item": 53,
 "scene": "1.3",
 "aside": false,
-"dur": 18.4
+"dur": 16.98
 },
 {
 "key": "1.3.54",
@@ -896,7 +936,7 @@
 "item": 54,
 "scene": "1.3",
 "aside": false,
-"dur": 1.46
+"dur": 1.14
 },
 {
 "key": "1.3.55",
@@ -907,7 +947,7 @@
 "item": 55,
 "scene": "1.3",
 "aside": false,
-"dur": 2.53
+"dur": 2.47
 },
 {
 "key": "1.3.56",
@@ -922,7 +962,7 @@
 "Two of the sisters' promises came true within the hour. The third was a crown. And did you see how fast the thought of murder came to him? No one had spoken of it. Now, to Forres. The king is waiting to thank him."
 ],
 "narration": true,
-"dur": 15.93
+"dur": 16.32
 }
 ],
 "act1_s12": [
@@ -933,7 +973,7 @@
 "Now, while the sisters went about their business, old King Duncan waited in his camp near Forres for news of the battle. A gentle king. Too trusting, some would say. Then a soldier was carried in... bleeding, but with a tale to tell."
 ],
 "narration": true,
-"dur": 17.42
+"dur": 17.95
 },
 {
 "key": "1.2.3b",
@@ -952,7 +992,7 @@
 "item": 3,
 "scene": "1.2",
 "aside": false,
-"dur": 20.21
+"dur": 19.25
 },
 {
 "key": "1.2.4",
@@ -963,7 +1003,7 @@
 "item": 4,
 "scene": "1.2",
 "aside": false,
-"dur": 3.09
+"dur": 2.96
 },
 {
 "key": "n.12b",
@@ -972,7 +1012,7 @@
 "Macdonwald the rebel was dead, opened from belly to jaw by Macbeth's own sword. But then the King of Norway struck with fresh men, and helping him in secret was one of Duncan's own lords: the Thane of Cawdor. Still Macbeth and Banquo held. Then Ross rode in from Fife."
 ],
 "narration": true,
-"dur": 21.58
+"dur": 20.01
 },
 {
 "key": "1.2.12",
@@ -983,7 +1023,7 @@
 "item": 12,
 "scene": "1.2",
 "aside": false,
-"dur": 1.75
+"dur": 1.23
 },
 {
 "key": "1.2.13",
@@ -994,7 +1034,7 @@
 "item": 13,
 "scene": "1.2",
 "aside": false,
-"dur": 2.61
+"dur": 2.25
 },
 {
 "key": "1.2.14",
@@ -1015,7 +1055,7 @@
 "item": 14,
 "scene": "1.2",
 "aside": false,
-"dur": 23.62
+"dur": 23.29
 },
 {
 "key": "1.2.15",
@@ -1026,7 +1066,7 @@
 "item": 15,
 "scene": "1.2",
 "aside": false,
-"dur": 1.47
+"dur": 1.24
 },
 {
 "key": "1.2.17",
@@ -1039,7 +1079,7 @@
 "item": 17,
 "scene": "1.2",
 "aside": false,
-"dur": 9.06
+"dur": 8.08
 },
 {
 "key": "1.2.18",
@@ -1050,7 +1090,7 @@
 "item": 18,
 "scene": "1.2",
 "aside": false,
-"dur": 1.53
+"dur": 1.04
 },
 {
 "key": "1.2.19",
@@ -1061,7 +1101,7 @@
 "item": 19,
 "scene": "1.2",
 "aside": false,
-"dur": 2.95
+"dur": 2.59
 },
 {
 "key": "n.12c",
@@ -1070,7 +1110,7 @@
 "So the king stripped the traitor of his title, and gave it to Macbeth. But Macbeth knew none of this. He was out on the heath with Banquo, walking home from the slaughter... toward the sisters."
 ],
 "narration": true,
-"dur": 13.27
+"dur": 13.34
 }
 ]
 }

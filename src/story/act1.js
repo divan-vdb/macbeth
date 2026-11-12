@@ -30,7 +30,7 @@ export function createAct1({ director, game, stage, folio, segments, lightning, 
   const WITCHES = ['witch1', 'witch2', 'witch3'];
   const A = (name) => stage.get(actorId(name));
   const dist = (x, z) => Math.hypot(player.position.x - x, player.position.z - z);
-  const after = (s) => new Promise((r) => setTimeout(r, s * 1000));
+  const after = (s) => director.wait(s); // stands still while paused
 
   const bank = mist.bank(H, { radius: 11, count: 26, density: 0.35, seed: 13 });
   const roadBeacon = createBeacon('objective', { height: 6, width: 0.9 });
@@ -60,7 +60,7 @@ export function createAct1({ director, game, stage, folio, segments, lightning, 
       const c = stage.get(id);
       if (c && c.root.visible) mist.burst(c.root.position);
     }
-    setTimeout(() => WITCHES.forEach((id) => stage.show(id, false)), 650);
+    director.wait(0.65).then(() => WITCHES.forEach((id) => stage.show(id, false)));
     if (where === 'hollow') {
       bank.set(0.3);
       game.witchBeacon.group.visible = false;
@@ -138,9 +138,10 @@ export function createAct1({ director, game, stage, folio, segments, lightning, 
               lightning.strike({ near: true });
               director.card('Act I &middot; Scene I', 'A desert place', 'Thunder and lightning');
             },
-            wait: 2.2,
+            wait: 1.2,
           },
-          '1.1.11': { do: () => vanish('cauldron'), wait: 1.6 },
+          '1.1.11': { do: () => vanish('cauldron'), wait: 0.4 },
+          'fx.11cackle': { shot: null },
           'n.11end': { shot: { from: at(k.x + Math.sin(toFire) * 3.2, ky + 2.4, k.z + Math.cos(toFire) * 3.2), at: at(k.x, ky + 0.6, k.z), drift: -0.25, dur: 14 } },
         }, new Set(['n.open'])),
       ],
@@ -201,7 +202,7 @@ export function createAct1({ director, game, stage, folio, segments, lightning, 
         '1.3.11': { do: () => {
           sfx('drum');
           towardParty();
-        }, wait: 1.2 },
+        }, wait: 0.6 },
         '1.3.13': { do: towardParty },
       }, new Set(['n.walk'])),
       { actors: actors() },
@@ -250,10 +251,11 @@ export function createAct1({ director, game, stage, folio, segments, lightning, 
           },
         },
         ...stepsFor('act1_s13b', {
-          '1.3.14': { shot: behindWitches, wait: 0.6 },
+          '1.3.14': { shot: behindWitches, wait: 0.2 },
           '1.3.15': { shot: faceShot(macbeth, { dist: 1.6, side: -0.35, drift: 0.12, dur: 5 }) },
           '1.3.29': { shot: faceShot(macbeth, { dist: 1.4, side: 0.4, drift: 0.16, dur: 26 }) },
-          '1.3.30': { shot: wideShot(pair, { bearing: Math.atan2(-f.x, -f.z) + 0.3, dist: 6, up: 1.8, dur: 6 }), do: () => vanish('hollow'), wait: 2.2 },
+          '1.3.30': { shot: wideShot(pair, { bearing: Math.atan2(-f.x, -f.z) + 0.3, dist: 6, up: 1.8, dur: 6 }), do: () => vanish('hollow'), wait: 0.3 },
+          'fx.13vanish': { shot: null },
           '1.3.33': { do: () => {
             arrivals = rossAndAngus(); // they walk in while the friends talk
           } },

@@ -42,7 +42,7 @@ export function createSettings({ onMode, onNewGame, extras = [] }) {
         <summary>Macbeth, a game by Divan van den Berg</summary>
         <p>In 2007, in his final year of high school, Divan read <i>Macbeth</i> in English class. This game goes back to it: a world to walk, fight and explore, where you can come to know Shakespeare’s play while you live it. It was brought to life through a collective approach, bringing together coding, design and AI.</p>
         <p class="disclaimer">The game aims to stay true to the original play, but some placements, names, characters’ appearances and events differ from it, because this is also an interactive online game. <i>The Tragedy of Macbeth</i> was written by William Shakespeare (1564–1616), and all credit for the original play and its words belongs to him. The text used here is in the public domain.</p>
-        <p class="credits">Characters: Quaternius (CC0). 3D engine: three.js (MIT). Physics: Rapier (Apache 2.0). Voices: made with the open Kokoro speech model (Apache 2.0). Play text: the public-domain Moby Shakespeare, with markup by Jon Bosak. Fonts: Cinzel and IM Fell English (SIL Open Font Licence).</p>
+        <p class="credits">Characters: Quaternius (CC0). 3D engine: three.js (MIT). Physics: Rapier (Apache 2.0). Voices: made with the open Kokoro speech model (Apache 2.0) and shaped with the WORLD vocoder (BSD). Play text: the public-domain Moby Shakespeare, with markup by Jon Bosak. Fonts: Cinzel and IM Fell English (SIL Open Font Licence).</p>
       </details>
       <div class="foot">
         <button type="button" class="act-btn danger" data-a="new">Start a new game</button>

@@ -22,6 +22,6 @@ web models in assets/models.
 
 - `text/toplay.py <macbeth.xml> ../assets/text/play.json`: converts the public-domain Moby text
   (Jon Bosak's XML, from the NLTK corpora) into the game's play.json, with modern quotes and dashes.
-- `voice/act1.py <play.json> <game folder>`: records Act I's lines with the Kokoro speech model,
+- `voice/act1.py <play.json> <game folder>`: records Act I's lines with the Kokoro speech model, aged and shaped with the WORLD vocoder (`voice/vox.py`),
   one voice blend and audio treatment per character, and writes `assets/voice/act1_*.json` and
   `assets/text/act1.json` (what the story director plays).

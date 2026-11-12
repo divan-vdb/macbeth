@@ -26,6 +26,7 @@ interactive online game.
 | three.js (3D rendering) | three.js authors | MIT |
 | Rapier (physics) | Dimforge | Apache 2.0 |
 | Kokoro-82M speech model, kokoro-onnx (voices) | hexgrad; thewh1teagle | Apache 2.0; MIT |
+| WORLD vocoder, pyworld (voice ageing and shaping) | Masanori Morise; Jeremy Hsu | BSD; MIT |
 | Cinzel and IM Fell English fonts (via Google Fonts) | Natanael Gama; Igino Marini | SIL Open Font Licence 1.1 |
 | jsDelivr CDN | jsDelivr | free public CDN |
 

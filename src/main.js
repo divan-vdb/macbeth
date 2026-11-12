@@ -68,7 +68,7 @@ async function main() {
   folioApi.setMode(settings.values.mode);
   $('hint').textContent = isTouch
     ? 'Left thumb to walk (push further to run) · drag to look · pinch to zoom · tap a weapon to ready it'
-    : 'WASD to walk · Shift to run · Space to jump · E to take or read · 1-4 weapons · Q drink a tonic · drag to look';
+    : 'WASD to walk · Shift to run · Space to jump · E to take or read · 1-4 weapons · Q drink a tonic · drag to look · P to pause';
 
   const scene = new THREE.Scene();
   const fogColor = srgb('#26303f');
@@ -253,7 +253,7 @@ async function main() {
         story: { get: () => (act1 ? act1.get() : null), set: (v) => act1 && act1.set(v) },
       });
       // the play, staged: lines, cameras, the Folio writing itself
-      director = createDirector({ scene, camera, heightAt, folio: folioApi, hud: game.hud, segments: act1Lines || {}, voiceBase: new URL('../assets/voice/', import.meta.url).href });
+      director = createDirector({ onPause: () => setPaused(true), scene, camera, heightAt, folio: folioApi, hud: game.hud, segments: act1Lines || {}, voiceBase: new URL('../assets/voice/', import.meta.url).href });
       act1 = createAct1({
         director, game, stage, folio: folioApi, segments: act1Lines || {}, lightning, mist, hollow,
         cauldronAt: cauldron.group.position, fireAt: new THREE.Vector3(0, 0, 0), player, macbeth: macbethChar, heightAt, camera, loadActor,
@@ -327,10 +327,50 @@ async function main() {
     if (act1) act1.begin(choice !== 'continue');
   };
   if (game) showTitle({ hasSave: !!loadGame(), onChoose: begin });
+
+  // Pause: any time, mid-line included. The world, the story, the voices and the sounds all
+  // stop where they are, and carry on from there.
+  let paused = false;
+  const pauseView = document.createElement('div');
+  pauseView.className = 'overlay pause-view';
+  pauseView.hidden = true;
+  pauseView.innerHTML = `<div class="inner"><h1>Paused</h1><div class="sub"></div>
+    <div class="choices"><button type="button" data-p="resume">Resume</button><button type="button" data-p="folio">The Folio</button><button type="button" data-p="settings">Settings</button></div>
+    <div class="note">P or Esc to resume</div></div>`;
+  document.body.appendChild(pauseView);
+  function setPaused(on) {
+    if (on === paused || !game || !game.began) return;
+    paused = on;
+    pauseView.hidden = !on;
+    pauseView.classList.remove('reading');
+    document.body.classList.toggle('paused', on);
+    audio.pauseAll(on);
+    if (on) {
+      const sc = folioApi.shown ? folioApi.shown.split('.') : null;
+      pauseView.querySelector('.sub').textContent = sc ? `Act ${['', 'I', 'II', 'III', 'IV', 'V'][sc[0]]}, Scene ${['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'][sc[1]]}` : '';
+    }
+  }
+  pauseView.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-p]');
+    if (!b) return;
+    if (b.dataset.p === 'resume') setPaused(false);
+    if (b.dataset.p === 'settings') settings.open();
+    if (b.dataset.p === 'folio') {
+      // read while paused: the menu shrinks to a small bar so the Folio is clear
+      setFolio(true);
+      pauseView.classList.add('reading');
+    }
+  });
+  $('btn-pause').addEventListener('click', () => setPaused(!paused));
   $('btn-map').addEventListener('click', () => game && game.map.toggle());
   $('btn-settings').addEventListener('click', () => (settings.isOpen ? settings.close() : settings.open()));
   window.addEventListener('keydown', (e) => {
     if (e.defaultPrevented || e.target.tagName === 'INPUT' || document.querySelector('.scroll-view, .title-view')) return;
+    if (e.code === 'KeyP' || (e.code === 'Escape' && (paused || (director && director.running)) && !settings.isOpen)) {
+      e.preventDefault();
+      return setPaused(!paused);
+    }
+    if (paused && e.code !== 'Escape') return;
     if (e.code === 'KeyM' && game && !settings.isOpen) game.map.toggle();
     if (e.code === 'Escape' && game && !game.map.isOpen) settings.isOpen ? settings.close() : settings.open();
   });
@@ -400,8 +440,14 @@ async function main() {
   let last = performance.now(), acc = 0, frames = 0, fpsTime = 0, wind = 0.2, fps = 60;
   renderer.setAnimationLoop(() => {
     const now = performance.now();
-    const dt = Math.min(0.1, (now - last) / 1000);
+    const real = Math.min(0.5, (now - last) / 1000);
+    const dt = Math.min(0.1, real);
     last = now;
+    if (paused) {
+      input.read(dt); // drain the input so nothing is stored up for later
+      renderer.render(scene, camera);
+      return;
+    }
 
     const inp = input.read(dt);
     if (game) game.input(inp, dt);
@@ -437,7 +483,7 @@ async function main() {
     // the rest of the cast (characters far from the camera skip their cloth simulation)
     if (stage) stage.update(dt, wind, camera);
     if (act1) act1.update(dt);
-    if (director) director.update(dt);
+    if (director) director.update(dt, real);
     if (cauldron) cauldron.update(dt, camera);
 
     // keep the moon's shadow centred on Macbeth

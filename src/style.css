@@ -740,3 +740,24 @@ body.touch:not(.cine) .story .subs { bottom: calc(150px + var(--safe-b, 0px)); w
 .settings-view .about .disclaimer { font-style: italic; opacity: .85; }
 .settings-view .about .credits { font-size: 12.5px; opacity: .75; }
 body.cine #btn-jump { opacity: 0 !important; pointer-events: none !important; }
+
+/* Pause */
+.pause-view { z-index: 17; background: radial-gradient(ellipse at center, rgba(20, 10, 8, .5), rgba(0, 0, 0, .85)); }
+.pause-view .inner { text-align: center; color: #efe3c4; display: grid; gap: 10px; justify-items: center; padding: 20px; }
+.pause-view h1 { margin: 0; font: 700 clamp(34px, 7vw, 60px) 'Cinzel', serif; letter-spacing: .14em; color: #e8c66a; }
+.pause-view .sub { font-style: italic; font-size: 18px; opacity: .8; margin-bottom: 10px; }
+.pause-view .choices { display: grid; gap: 10px; width: min(300px, 80vw); }
+.pause-view button { padding: 12px 16px; border-radius: 5px; border: 1px solid rgba(232, 198, 106, .7); background: rgba(40, 24, 12, .8); color: #f3e3bd; font: 700 14px 'Cinzel', serif; letter-spacing: .06em; cursor: pointer; }
+.pause-view button:hover { background: rgba(90, 40, 20, .85); }
+.pause-view .note { font-size: 13px; opacity: .55; margin-top: 6px; }
+.pause-view.reading { inset: auto; top: calc(10px + var(--safe-t, 0px)); left: 50%; transform: translateX(-50%); background: none; animation: none; }
+.pause-view.reading .inner { grid-auto-flow: column; align-items: center; gap: 12px; padding: 8px 14px; border-radius: 6px; background: rgba(12, 9, 7, .85); border: 1px solid rgba(201, 162, 74, .5); }
+.pause-view.reading h1 { font-size: 16px; }
+.pause-view.reading .sub, .pause-view.reading .note, .pause-view.reading button:not([data-p=resume]) { display: none; }
+.pause-view.reading .choices { width: auto; }
+.pause-view.reading button { padding: 7px 12px; font-size: 12px; }
+body.paused .story .subs-btns, body.paused .story .letterbox { pointer-events: none; }
+#btn-pause { min-width: 44px; letter-spacing: -0.1em; }
+.story .subs.fx { background: transparent; border-color: transparent; box-shadow: none; }
+.story .subs.fx .subs-say { font-style: italic; color: rgba(241, 230, 204, 0.85); text-shadow: 0 1px 6px #000; }
+.story .subs.fx .subs-btns { display: none; }

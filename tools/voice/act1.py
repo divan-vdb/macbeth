@@ -1,11 +1,11 @@
 """Act I voices: scenes 1.1 and 1.3 in full, the heart of 1.2, and the Old Man's
-narration (in our own words). Kokoro-82M (Apache 2.0) voice blends, shaped with
-ffmpeg, encoded as small MP3s and packed as base64 JSON banks that any static
+narration (in our own words). Kokoro-82M (Apache 2.0) voice blends, aged and shaped with
+the WORLD vocoder (vox.py) and ffmpeg, encoded as small MP3s and packed as base64 JSON banks that any static
 host will serve. Also writes assets/text/act1.json: every segment's speaker, text,
 Folio item and length, which the story director plays.
 
 usage: python3 act1.py <play.json> <game dir> [part ...]
-Needs: pip install kokoro-onnx soundfile numpy; ffmpeg; kokoro-v1.0.onnx and voices-v1.0.bin
+Needs: pip install kokoro-onnx soundfile numpy pyworld; ffmpeg; kokoro-v1.0.onnx and voices-v1.0.bin
 (from the kokoro-onnx releases on GitHub) in the working folder.
 """
 import json, os, re, subprocess, sys, base64, tempfile
@@ -20,36 +20,42 @@ SR = 24000
 def blend(*pairs):
     return sum(k.get_voice_style(v) * w for v, w in pairs)
 
-ROOM = 'aecho=0.8:0.5:28|61:0.11|0.06'
+from vox import age, finish, phrases
+
+ROOM = 'aecho=0.8:0.45:28|61:0.1|0.05'
+WITCH_ROOM = 'highpass=f=90,equalizer=f=250:t=q:w=1:g=-2,equalizer=f=3000:t=q:w=1.2:g=2,aecho=0.8:0.55:70|150|240:0.22|0.14|0.08'
+# voice: (Kokoro blend, speed, WORLD shaping, ffmpeg EQ and room). Speeds are conversational;
+# WORLD changes pitch and timbre without slowing the words.
 CAST = {
-    # the Old Man: deep, slow, a little unsteady, close by the fire
-    'narrator': (blend(('bm_george', 0.7), ('bm_daniel', 0.3)), 0.82,
-                 'asetrate=24000*0.92,aresample=24000,atempo=1.02,vibrato=f=4.5:d=0.06,equalizer=f=140:t=q:w=1:g=3,equalizer=f=3200:t=q:w=1.5:g=-2,lowpass=f=7500,aecho=0.8:0.6:45|90:0.18|0.1,volume=1.4'),
-    # the Weird Sisters: three different crones, all with something unnatural in the air round them
-    'witch1': (blend(('bf_alice', 1.0)), 0.9,
-               'asetrate=24000*0.86,aresample=24000,atempo=1.1,vibrato=f=6:d=0.15,highpass=f=180,aecho=0.8:0.7:120|260:0.35|0.2,volume=1.3'),
-    'witch2': (blend(('af_nicole', 0.6), ('bf_lily', 0.4)), 0.88,
-               'asetrate=24000*0.8,aresample=24000,atempo=1.18,tremolo=f=7:d=0.25,highpass=f=150,lowpass=f=6000,aecho=0.8:0.6:90|200:0.3|0.18,volume=1.6'),
-    'witch3': (blend(('bf_isabella', 0.7), ('af_sky', 0.3)), 0.85,
-               'asetrate=24000*0.93,aresample=24000,atempo=1.04,vibrato=f=3.5:d=0.3,highpass=f=220,aecho=0.8:0.7:150|330:0.32|0.22,volume=1.3'),
-    # Macbeth: a soldier's weight, darkened; his asides are an inner voice, close and echoing
-    'macbeth': (blend(('bm_lewis', 0.6), ('bm_fable', 0.4)), 0.9,
-                'asetrate=24000*0.95,aresample=24000,atempo=1.04,equalizer=f=120:t=q:w=1:g=3,lowpass=f=8000,' + ROOM + ',volume=1.2'),
-    'macbeth_aside': (blend(('bm_lewis', 0.6), ('bm_fable', 0.4)), 0.84,
-                      'asetrate=24000*0.94,aresample=24000,atempo=1.04,equalizer=f=120:t=q:w=1:g=4,lowpass=f=5200,aecho=0.8:0.85:60|140|260:0.4|0.26|0.14,volume=1.1'),
-    # Banquo: warm, steady, a touch younger and plainer than Macbeth
-    'banquo': (blend(('bm_daniel', 0.55), ('am_michael', 0.45)), 0.92,
-               'asetrate=24000*0.98,aresample=24000,atempo=1.02,equalizer=f=200:t=q:w=1:g=2,lowpass=f=8500,' + ROOM + ',volume=1.2'),
-    # Ross: a quick, bright messenger; Angus: older, gravelled
-    'ross': (blend(('bm_fable', 0.6), ('am_liam', 0.4)), 1.0,
-             'equalizer=f=2500:t=q:w=1:g=2,lowpass=f=9000,' + ROOM + ',volume=1.2'),
-    'angus': (blend(('bm_george', 0.55), ('am_onyx', 0.45)), 0.88,
-              'asetrate=24000*0.9,aresample=24000,atempo=1.08,equalizer=f=150:t=q:w=1:g=3,lowpass=f=7000,' + ROOM + ',volume=1.3'),
-    # Duncan: an old, gentle king in his tent; the Sergeant: wounded, short of breath
-    'duncan': (blend(('am_santa', 0.5), ('bm_daniel', 0.5)), 0.88,
-               'asetrate=24000*0.94,aresample=24000,atempo=1.04,lowpass=f=7500,aecho=0.8:0.6:40|80:0.15|0.08,volume=1.2'),
-    'sergeant': (blend(('am_fenrir', 0.6), ('bm_daniel', 0.4)), 0.9,
-                 'tremolo=f=5:d=0.2,lowpass=f=6500,' + ROOM + ',volume=1.3'),
+    # the Old Man: a warm, steady, well-spoken elderly British storyteller, calm and authoritative
+    'narrator': (blend(('bm_george', 0.65), ('bm_daniel', 0.35)), 0.92,
+                 dict(f0=0.95, formant=0.98, jitter=0.008, tremor=(5.0, 0.008), breath=0.28, fry=0.1),
+                 'highpass=f=60,equalizer=f=150:t=q:w=1:g=1,equalizer=f=320:t=q:w=1:g=-1.5,equalizer=f=2500:t=h:w=1:g=3.5,aecho=0.8:0.35:32|64:0.09|0.05'),
+    # the Weird Sisters, old hags all: the Ancient Crone (low, gravelly, slow and deliberate, a whispered
+    # double under her words); the croaking one with a growl beneath; the thin, wavering, eerie one
+    'witch1': (blend(('bf_emma', 0.6), ('bf_alice', 0.4)), 1.0,
+               dict(f0=0.62, range=1.75, creak=0.5, formant=0.96, jitter=0.02, tremor=(6.0, 0.022), breath=0.5, breath_from=900, fry=0.7, whisper=0.1),
+               'highpass=f=70,equalizer=f=180:t=q:w=1:g=2,equalizer=f=4500:t=h:w=1:g=-4,aecho=0.8:0.4:55|120:0.12|0.06'),
+    'witch2': (blend(('af_nicole', 0.5), ('bf_lily', 0.5)), 0.92,
+               dict(f0=0.72, formant=0.98, jitter=0.05, tremor=(5.0, 0.03), breath=0.45, fry=0.75, whisper=0.3, sub=0.12), WITCH_ROOM),
+    'witch3': (blend(('bf_isabella', 0.7), ('af_sky', 0.3)), 0.92,
+               dict(f0=0.86, formant=1.08, jitter=0.03, tremor=(4.2, 0.065), breath=0.38, fry=0.35, whisper=0.35), WITCH_ROOM),
+    # Macbeth: a soldier's weight; his asides an inner voice, close, breathy and echoing
+    'macbeth': (blend(('bm_lewis', 0.6), ('bm_fable', 0.4)), 1.0,
+                dict(f0=0.94, formant=0.97, jitter=0.004, breath=0.04),
+                'highpass=f=70,equalizer=f=130:t=q:w=1:g=3,' + ROOM),
+    'macbeth_aside': (blend(('bm_lewis', 0.6), ('bm_fable', 0.4)), 0.95,
+                      dict(f0=0.93, formant=0.97, jitter=0.004, breath=0.12, whisper=0.15),
+                      'highpass=f=70,equalizer=f=130:t=q:w=1:g=4,lowpass=f=6000,aecho=0.8:0.8:60|140|260:0.35|0.22|0.12'),
+    'banquo': (blend(('bm_daniel', 0.55), ('am_michael', 0.45)), 1.0,
+               dict(f0=0.98), 'highpass=f=70,equalizer=f=200:t=q:w=1:g=2,' + ROOM),
+    'ross': (blend(('bm_fable', 0.6), ('am_liam', 0.4)), 1.05, None, 'highpass=f=70,equalizer=f=2500:t=q:w=1:g=2,' + ROOM),
+    'angus': (blend(('bm_george', 0.55), ('am_onyx', 0.45)), 0.97,
+              dict(f0=0.9, formant=0.96, jitter=0.01, breath=0.08), 'highpass=f=60,equalizer=f=150:t=q:w=1:g=3,' + ROOM),
+    'duncan': (blend(('am_santa', 0.5), ('bm_daniel', 0.5)), 0.95,
+               dict(f0=0.94, jitter=0.012, tremor=(5.0, 0.01), breath=0.1), 'highpass=f=60,aecho=0.8:0.55:40|80:0.14|0.07'),
+    'sergeant': (blend(('am_fenrir', 0.6), ('bm_daniel', 0.4)), 0.95,
+                 dict(jitter=0.02, tremor=(6.0, 0.02), breath=0.2), 'highpass=f=70,' + ROOM),
 }
 WHO = {'First Witch': 'witch1', 'Second Witch': 'witch2', 'Third Witch': 'witch3', 'Macbeth': 'macbeth', 'Banquo': 'banquo',
        'Ross': 'ross', 'Angus': 'angus', 'Duncan': 'duncan', 'Sergeant': 'sergeant', 'All': 'all', 'The Old Man': 'narrator'}
@@ -82,25 +88,17 @@ def chunks(text, limit=230):
     return out
 
 def synth(voice, text):
-    style, speed, chain = CAST[voice]
-    pieces = []
-    for c in chunks(spoken(text)):
-        s, sr = k.create(c, voice=style, speed=speed, lang='en-gb')
-        pieces += [s, np.zeros(int(SR * 0.22), dtype=s.dtype)]
-    raw = np.concatenate(pieces[:-1]) if pieces else np.zeros(SR // 2, dtype=np.float32)
-    with tempfile.TemporaryDirectory() as d:
-        sf.write(f'{d}/in.wav', raw, SR)
-        subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f'{d}/in.wav', '-af', chain, '-ar', str(SR), '-ac', '1', f'{d}/out.wav'], check=True)
-        y, _ = sf.read(f'{d}/out.wav', dtype='float32')
-    return y
+    style, speed, shape, chain = CAST[voice]
+    # the Ancient Crone weighs every phrase; everyone else speaks at a conversational pace
+    slow = voice in ('witch1', 'narrator')
+    raw = phrases(k, style, speed, spoken(text), SR, commas=slow, gap=0.28 if voice == 'narrator' else 0.14, comma_gap=0.14 if voice == 'narrator' else 0.2)
+    y = age(raw, SR, **shape) if shape else raw
+    return finish(y, SR, chain)
 
 def mp3(y):
-    peak = float(np.max(np.abs(y))) or 1.0
-    if peak > 0.97:
-        y = y * (0.97 / peak)
     with tempfile.TemporaryDirectory() as d:
-        sf.write(f'{d}/a.wav', y, SR)
-        subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f'{d}/a.wav', '-codec:a', 'libmp3lame', '-b:a', '32k', '-ar', str(SR), '-ac', '1', f'{d}/a.mp3'], check=True)
+        sf.write(f'{d}/a.wav', y, SR, subtype='FLOAT')
+        subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f'{d}/a.wav', '-codec:a', 'libmp3lame', '-b:a', '40k', '-ar', str(SR), '-ac', '1', f'{d}/a.mp3'], check=True)
         return base64.b64encode(open(f'{d}/a.mp3', 'rb').read()).decode()
 
 def render(voice, text):
@@ -111,7 +109,7 @@ def render(voice, text):
         for i, y in enumerate(ys):
             o = int(SR * 0.035 * i)
             mix[o:o + len(y)] += y * 0.62
-        return mix
+        return finish(mix, SR)
     return synth(voice, text)
 
 # ---------- what is spoken
@@ -149,6 +147,9 @@ SPLITS_13 = {
     51: [('', 'Macbeth', L(1, 3, 51), True)],
 }
 
+def fx(key, who, text, say):
+    return {'key': key, 'who': who, 'lines': [text], 'fx': True, 'say': say}
+
 def old(key, text):
     return {'key': key, 'who': 'The Old Man', 'lines': [text], 'narration': True}
 
@@ -182,6 +183,13 @@ PARTS = {
     'act1_s13b': speeches(1, 3, 14, 37),
     'act1_s13c': speeches(1, 3, 38, 56, SPLITS_13) + [old('n.13end', NARRATION['13end'])],
 }
+def after(lst, key, item):
+    i = next(n for n, x in enumerate(lst) if x['key'] == key)
+    lst.insert(i + 1, item)
+after(PARTS['act1_s11'], '1.1.11', fx('fx.11cackle', 'First Witch', 'cackles', 'Ah, ha ha ha ha haaa!'))
+after(PARTS['act1_s13a'], '1.3.4', fx('fx.13cackle1', 'First Witch', 'cackles', 'Heh heh heh heh heh!'))
+after(PARTS['act1_s13a'], '1.3.10', fx('fx.13cackle2', 'Second Witch', 'cackles', 'Hee hee hee hee hee!'))
+after(PARTS['act1_s13b'], '1.3.30', fx('fx.13vanish', 'All', 'cackling, fading into the air', 'Ah ha ha ha ha ha!'))
 ORDER = ['act1_s11', 'act1_s13b', 'act1_s13a', 'act1_s13c', 'act1_s12']
 
 manifest_path = os.path.join(GAME, 'assets/text/act1.json')
@@ -196,7 +204,7 @@ for part in ORDER:
         voice = WHO[s['who']]
         if voice == 'macbeth' and s.get('aside'):
             voice = 'macbeth_aside'
-        y = render(voice, ' '.join(s['lines']))
+        y = render(voice, s['say'] if s.get('fx') else ' '.join(s['lines']))
         s['dur'] = round(len(y) / SR, 2)
         bank[s['key']] = mp3(y)
         print(part, s['key'], s['who'], s['dur'], flush=True)

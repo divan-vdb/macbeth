@@ -694,6 +694,13 @@ export function start() {
   owl();
 }
 
+// pause: everything stops where it is (voices mid-word included) and carries on from there
+export function pauseAll(on) {
+  if (!ctx) return;
+  if (on) ctx.suspend();
+  else ctx.resume();
+}
+
 export function setMuted(m) {
   muted = m;
   if (master) master.gain.setTargetAtTime(m ? 0 : 0.9, ctx.currentTime, 0.1);

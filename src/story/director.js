@@ -11,7 +11,7 @@ import { CHARACTERS, portraitSmall } from '../folio/characters.js';
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const ease = (t) => t * t * (3 - 2 * t);
 
-export function createDirector({ scene, camera, heightAt, folio, hud, segments, voiceBase }) {
+export function createDirector({ scene, camera, heightAt, folio, hud, segments, voiceBase, onPause }) {
   // a soft moonlit fill that travels with the camera in cinematics, so faces read
   // against the night (added once at the start, so no shader changes mid-game)
   const fill = new THREE.PointLight(new THREE.Color().setStyle('#b4c4e6', THREE.SRGBColorSpace), 0, 10, 1.4);
@@ -26,6 +26,7 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
       <div class="subs-who"></div>
       <div class="subs-say"></div>
       <div class="subs-btns">
+        <button type="button" class="subs-pause" aria-label="Pause">&#10074;&#10074; Pause</button>
         <button type="button" class="subs-next" aria-label="Next line">Next &#9656;</button>
         <button type="button" class="subs-skip">Skip scene &#9656;&#9656;</button>
       </div>
@@ -53,6 +54,7 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
     if (!on) shot = null;
   }
   const next = () => nextLine && nextLine();
+  el.querySelector('.subs-pause').addEventListener('click', () => onPause && onPause());
   el.querySelector('.subs-next').addEventListener('click', next);
   el.querySelector('.subs-skip').addEventListener('click', () => {
     skipping = true;
@@ -73,11 +75,17 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
   );
 
   // ---------- one line of the play: voice, subtitle pages, Folio ink, speaker's gesture
+  // waits run on the director's clock, which stands still while the game is paused
+  let clock = 0;
+  const timers = [];
+  const timer = (sec) => new Promise((r) => timers.push({ at: clock + sec, r }));
   const sleep = (sec) =>
     new Promise((r) => {
-      const t = setTimeout(r, sec * 1000);
+      const t = { at: clock + sec, r };
+      timers.push(t);
       nextLine = () => {
-        clearTimeout(t);
+        const i = timers.indexOf(t);
+        if (i >= 0) timers.splice(i, 1);
         r();
       };
     });
@@ -109,7 +117,7 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
     // the speaker's portrait and name; asides are thoughts, in italics
     const c = CHARACTERS[s.who];
     who.innerHTML = `${portraitSmall(s.who)}<b>${esc(c ? c.name : s.who)}</b>${s.aside ? '<i>aside</i>' : ''}`;
-    subs.className = `subs${narr ? ' narration' : ''}${s.aside ? ' aside' : ''}`;
+    subs.className = `subs${narr ? ' narration' : ''}${s.aside ? ' aside' : ''}${s.fx ? ' fx' : ''}`;
     subs.hidden = false;
     // the speaker talks with their hands; an aside darkens the world around Macbeth
     const speakers = s.who === 'All' ? ['witch1', 'witch2', 'witch3'] : [actorId(s.who)];
@@ -120,7 +128,8 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
     const ps = pages(s.lines);
     const chars = ps.map((p) => p.join(' ').length);
     const total = chars.reduce((a, b) => a + b, 0);
-    const length = buf ? buf.duration : ps.reduce((a, p, i) => a + 1.1 + chars[i] * 0.058, 0);
+    if (s.fx && !buf) return; // a cackle with the sound off: nothing to read
+    const length = buf ? buf.duration : ps.reduce((a, p, i) => a + 0.9 + chars[i] * 0.055, 0);
     let ended = false;
     if (buf) {
       handle = audio.playBuffer(buf, { ch });
@@ -128,21 +137,21 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
     }
     let cut = false;
     for (let i = 0; i < ps.length && !cut; i++) {
-      say.innerHTML = ps[i].map((l) => `<span>${esc(l)}</span>`).join('');
+      say.innerHTML = s.fx ? `<span>(${esc(s.lines[0])})</span>` : ps[i].map((l) => `<span>${esc(l)}</span>`).join('');
       say.classList.remove('fresh');
       void say.offsetWidth;
       say.classList.add('fresh');
       const t0 = performance.now();
-      const dur = buf ? (length * chars[i]) / total : 1.1 + chars[i] * 0.058;
+      const dur = buf ? (length * chars[i]) / total : 0.9 + chars[i] * 0.055;
       await sleep(dur);
       if (performance.now() - t0 < dur * 1000 - 30) cut = true; // skipped
     }
-    if (buf && !cut && !ended) await Promise.race([handle.done, sleep(0.6)]);
+    if (buf && !cut && !ended) await Promise.race([handle.done, timer(0.4)]);
     if (handle) handle.stop();
     handle = null;
     for (const id of speakers) actors[id] && actors[id].talk && actors[id].talk(false);
     if (s.aside) moodTarget = 0;
-    if (!cut && !skipping) await sleep(buf ? 0.28 : 0.15);
+    if (!cut && !skipping) await sleep(buf ? 0.12 : 0.15);
   }
 
   // ---------- running a scene: a list of steps
@@ -156,8 +165,9 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
       for (let n = 0; n < steps.length; n++) {
         const st = steps[n];
         // decode the next line while this one plays
-        const ahead = steps.slice(n + 1).find((x) => x.say);
-        if (ahead && seg[ahead.say] && audio.soundOn()) audio.bankClip(voiceBase + partOf[ahead.say] + '.json', ahead.say);
+        if (audio.soundOn())
+          for (const ahead of steps.slice(n + 1).filter((x) => x.say).slice(0, 2))
+            if (seg[ahead.say]) audio.bankClip(voiceBase + partOf[ahead.say] + '.json', ahead.say);
         if (st.cine !== undefined) setCine(st.cine);
         if (st.shot && !skipping) setShot(st.shot);
         if (st.do) await st.do();
@@ -169,7 +179,7 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
             subs.className = 'subs direction';
             subs.hidden = false;
             say.innerHTML = `<span>${esc(st.text)}</span>`;
-            await sleep(st.hold || 1.6);
+            await sleep(st.hold || 1.0);
           }
         }
         if (st.say) await speak(st.say, { actors, onLine });
@@ -196,7 +206,14 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
   }
   // call after the player's camera has been placed: overrides it in a cinematic,
   // and eases back from the last shot afterwards
-  function update(dt) {
+  function update(dt, real = dt) {
+    clock += real;
+    for (let i = timers.length - 1; i >= 0; i--)
+      if (timers[i].at <= clock) {
+        const t = timers[i];
+        timers.splice(i, 1);
+        t.r();
+      }
     mood += (moodTarget - mood) * Math.min(1, dt * 1.6);
     fill.intensity += ((cine ? 7 : 0) - fill.intensity) * Math.min(1, dt * 2);
     el.style.setProperty('--mood', mood.toFixed(3));
@@ -232,9 +249,9 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
     chapter.classList.remove('show');
     void chapter.offsetWidth;
     chapter.classList.add('show');
-    await new Promise((r) => setTimeout(r, secs * 1000));
+    await timer(secs);
     chapter.classList.remove('show');
-    await new Promise((r) => setTimeout(r, 700));
+    await timer(0.7);
     chapter.hidden = true;
   }
 
@@ -251,6 +268,7 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
       return running;
     },
     has: (key) => !!seg[key],
+    wait: timer,
     // warm up a part's voices before they are needed
     preload(part) {
       audio.loadBank(voiceBase + part + '.json');
