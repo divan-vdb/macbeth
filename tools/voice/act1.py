@@ -1,12 +1,12 @@
 """Act I voices: scenes 1.1 and 1.3 in full, the heart of 1.2, and the Old Man's
-narration (in our own words). Kokoro-82M (Apache 2.0) voice blends, aged and shaped with
-the WORLD vocoder (vox.py) and ffmpeg, encoded as small MP3s and packed as base64 JSON banks that any static
+narration (in our own words). Kokoro-82M (Apache 2.0) voice blends, read in Received Pronunciation; the witches aged with
+the WORLD vocoder (vox.py); dry ffmpeg mastering; encoded as small MP3s and packed as base64 JSON banks that any static
 host will serve. Also writes assets/text/act1.json: every segment's speaker, text,
 Folio item and length, which the story director plays.
 
 usage: python3 act1.py <play.json> <game dir> [part ...]
-Needs: pip install kokoro-onnx soundfile numpy pyworld; ffmpeg; kokoro-v1.0.onnx and voices-v1.0.bin
-(from the kokoro-onnx releases on GitHub) in the working folder.
+Needs: pip install kokoro-onnx soundfile numpy pyworld; ffmpeg with rubberband; kokoro-v1.0.onnx and
+voices-v1.0.bin (from the kokoro-onnx releases on GitHub) in the working folder.
 """
 import json, os, re, subprocess, sys, base64, tempfile
 import numpy as np, soundfile as sf
@@ -20,42 +20,35 @@ SR = 24000
 def blend(*pairs):
     return sum(k.get_voice_style(v) * w for v, w in pairs)
 
-from vox import age, finish, phrases
+from vox import age, finish, speak, MASTER
 
-ROOM = 'aecho=0.8:0.45:28|61:0.1|0.05'
-WITCH_ROOM = 'highpass=f=90,equalizer=f=250:t=q:w=1:g=-2,equalizer=f=3000:t=q:w=1.2:g=2,aecho=0.8:0.55:70|150|240:0.22|0.14|0.08'
-# voice: (Kokoro blend, speed, WORLD shaping, ffmpeg EQ and room). Speeds are conversational;
-# WORLD changes pitch and timbre without slowing the words.
+# voice: (Kokoro blend, speed, WORLD shaping or None, ffmpeg chain). Everything is dry: no room,
+# no echo, no delayed copies. Small pitch changes use rubberband (formants kept) so voices stay
+# natural; only the witches go through the WORLD vocoder, which their age and rasp need.
+EQ_WITCH = MASTER + ',equalizer=f=180:t=q:w=1:g=1.5,equalizer=f=4500:t=h:w=1:g=-3'
+W1 = dict(f0=0.62, range=1.75, creak=0.5, formant=0.96, jitter=0.02, tremor=(6.0, 0.022), breath=0.5, breath_from=900, fry=0.7, whisper=0.08)
+W2 = dict(f0=0.72, formant=0.98, jitter=0.04, tremor=(5.0, 0.025), breath=0.42, breath_from=600, fry=0.75, whisper=0.12, sub=0.1)
+W3 = dict(f0=0.86, formant=1.07, jitter=0.025, tremor=(4.2, 0.06), breath=0.36, breath_from=700, fry=0.35, whisper=0.12)
 CAST = {
-    # the Old Man: a warm, steady, well-spoken elderly British storyteller, calm and authoritative
-    'narrator': (blend(('bm_george', 0.65), ('bm_daniel', 0.35)), 0.92,
-                 dict(f0=0.95, formant=0.98, jitter=0.008, tremor=(5.0, 0.008), breath=0.28, fry=0.1),
-                 'highpass=f=60,equalizer=f=150:t=q:w=1:g=1,equalizer=f=320:t=q:w=1:g=-1.5,equalizer=f=2500:t=h:w=1:g=3.5,aecho=0.8:0.35:32|64:0.09|0.05'),
-    # the Weird Sisters, old hags all: the Ancient Crone (low, gravelly, slow and deliberate, a whispered
-    # double under her words); the croaking one with a growl beneath; the thin, wavering, eerie one
-    'witch1': (blend(('bf_emma', 0.6), ('bf_alice', 0.4)), 1.0,
-               dict(f0=0.62, range=1.75, creak=0.5, formant=0.96, jitter=0.02, tremor=(6.0, 0.022), breath=0.5, breath_from=900, fry=0.7, whisper=0.1),
-               'highpass=f=70,equalizer=f=180:t=q:w=1:g=2,equalizer=f=4500:t=h:w=1:g=-4,aecho=0.8:0.4:55|120:0.12|0.06'),
-    'witch2': (blend(('af_nicole', 0.5), ('bf_lily', 0.5)), 0.92,
-               dict(f0=0.72, formant=0.98, jitter=0.05, tremor=(5.0, 0.03), breath=0.45, fry=0.75, whisper=0.3, sub=0.12), WITCH_ROOM),
-    'witch3': (blend(('bf_isabella', 0.7), ('af_sky', 0.3)), 0.92,
-               dict(f0=0.86, formant=1.08, jitter=0.03, tremor=(4.2, 0.065), breath=0.38, fry=0.35, whisper=0.35), WITCH_ROOM),
-    # Macbeth: a soldier's weight; his asides an inner voice, close, breathy and echoing
-    'macbeth': (blend(('bm_lewis', 0.6), ('bm_fable', 0.4)), 1.0,
-                dict(f0=0.94, formant=0.97, jitter=0.004, breath=0.04),
-                'highpass=f=70,equalizer=f=130:t=q:w=1:g=3,' + ROOM),
-    'macbeth_aside': (blend(('bm_lewis', 0.6), ('bm_fable', 0.4)), 0.95,
-                      dict(f0=0.93, formant=0.97, jitter=0.004, breath=0.12, whisper=0.15),
-                      'highpass=f=70,equalizer=f=130:t=q:w=1:g=4,lowpass=f=6000,aecho=0.8:0.8:60|140|260:0.35|0.22|0.12'),
-    'banquo': (blend(('bm_daniel', 0.55), ('am_michael', 0.45)), 1.0,
-               dict(f0=0.98), 'highpass=f=70,equalizer=f=200:t=q:w=1:g=2,' + ROOM),
-    'ross': (blend(('bm_fable', 0.6), ('am_liam', 0.4)), 1.05, None, 'highpass=f=70,equalizer=f=2500:t=q:w=1:g=2,' + ROOM),
-    'angus': (blend(('bm_george', 0.55), ('am_onyx', 0.45)), 0.97,
-              dict(f0=0.9, formant=0.96, jitter=0.01, breath=0.08), 'highpass=f=60,equalizer=f=150:t=q:w=1:g=3,' + ROOM),
-    'duncan': (blend(('am_santa', 0.5), ('bm_daniel', 0.5)), 0.95,
-               dict(f0=0.94, jitter=0.012, tremor=(5.0, 0.01), breath=0.1), 'highpass=f=60,aecho=0.8:0.55:40|80:0.14|0.07'),
-    'sergeant': (blend(('am_fenrir', 0.6), ('bm_daniel', 0.4)), 0.95,
-                 dict(jitter=0.02, tremor=(6.0, 0.02), breath=0.2), 'highpass=f=70,' + ROOM),
+    # the Old Man: a warm, steady, well-spoken elderly British storyteller, his own voice untouched
+    'narrator': (blend(('bm_george', 0.65), ('bm_daniel', 0.35)), 0.9, None,
+                 MASTER + ',equalizer=f=160:t=q:w=1:g=1.5,equalizer=f=320:t=q:w=1:g=-1.5,equalizer=f=2600:t=h:w=1:g=2'),
+    # the Weird Sisters, old hags all: the Ancient Crone (low, gravelly, measured); the croaking one
+    # with a growl beneath; the thin, wavering, eerie one
+    'witch1': (blend(('bf_emma', 0.6), ('bf_alice', 0.4)), 0.8, W1, EQ_WITCH),
+    'witch2': (blend(('af_nicole', 0.5), ('bf_lily', 0.5)), 0.84, W2, EQ_WITCH),
+    'witch3': (blend(('bf_isabella', 0.7), ('af_sky', 0.3)), 0.84, W3, EQ_WITCH),
+    # Macbeth: a soldier's weight; his asides close and quiet, as if thought aloud
+    'macbeth': (blend(('bm_lewis', 0.6), ('bm_fable', 0.4)), 1.0, None,
+                'rubberband=pitch=0.95:formant=preserved,' + MASTER + ',equalizer=f=130:t=q:w=1:g=2'),
+    'macbeth_aside': (blend(('bm_lewis', 0.6), ('bm_fable', 0.4)), 0.95, None,
+                      'rubberband=pitch=0.94:formant=preserved,' + MASTER + ',equalizer=f=130:t=q:w=1:g=3,lowpass=f=7000'),
+    'banquo': (blend(('bm_daniel', 0.55), ('am_michael', 0.45)), 1.0, None, MASTER + ',equalizer=f=200:t=q:w=1:g=1.5'),
+    'ross': (blend(('bm_fable', 0.6), ('am_liam', 0.4)), 1.05, None, MASTER + ',equalizer=f=2500:t=q:w=1:g=1.5'),
+    'angus': (blend(('bm_george', 0.55), ('am_onyx', 0.45)), 0.97, None,
+              'rubberband=pitch=0.92:formant=preserved,' + MASTER + ',equalizer=f=150:t=q:w=1:g=2'),
+    'duncan': (blend(('am_santa', 0.5), ('bm_daniel', 0.5)), 0.95, None, 'rubberband=pitch=0.95:formant=preserved,' + MASTER),
+    'sergeant': (blend(('am_fenrir', 0.6), ('bm_daniel', 0.4)), 0.95, None, MASTER),
 }
 WHO = {'First Witch': 'witch1', 'Second Witch': 'witch2', 'Third Witch': 'witch3', 'Macbeth': 'macbeth', 'Banquo': 'banquo',
        'Ross': 'ross', 'Angus': 'angus', 'Duncan': 'duncan', 'Sergeant': 'sergeant', 'All': 'all', 'The Old Man': 'narrator'}
@@ -89,11 +82,12 @@ def chunks(text, limit=230):
 
 def synth(voice, text):
     style, speed, shape, chain = CAST[voice]
-    # the Ancient Crone weighs every phrase; everyone else speaks at a conversational pace
-    slow = voice in ('witch1', 'narrator')
-    raw = phrases(k, style, speed, spoken(text), SR, commas=slow, gap=0.28 if voice == 'narrator' else 0.14, comma_gap=0.14 if voice == 'narrator' else 0.2)
+    # the sisters take their time: longer breaths at full stops and commas
+    hag = voice.startswith('witch')
+    pause = 0.5 if voice == 'narrator' or hag else 0.3
+    raw = speak(k, style, speed, spoken(text), SR, pause=pause, clause=0.28 if hag else 0.14)
     y = age(raw, SR, **shape) if shape else raw
-    return finish(y, SR, chain)
+    return finish(y, SR, chain, rms_db=-22.0 if voice == 'macbeth_aside' else -20.0)
 
 def mp3(y):
     with tempfile.TemporaryDirectory() as d:
@@ -102,14 +96,17 @@ def mp3(y):
         return base64.b64encode(open(f'{d}/a.mp3', 'rb').read()).decode()
 
 def render(voice, text):
-    if voice == 'all':  # the three sisters together, a breath apart
-        ys = [synth(v, text) for v in ('witch1', 'witch2', 'witch3')]
-        n = max(len(y) for y in ys) + int(SR * 0.09)
+    if voice == 'all':
+        # the three sisters as one: a single reading (so they keep time), shaped into each
+        # sister's voice and laid a breath apart
+        base = speak(k, blend(('bf_emma', 0.5), ('bf_isabella', 0.5)), 0.8, spoken(text), SR, pause=0.5, clause=0.28)
+        vs = [finish(age(base, SR, seed=i + 1, **w), SR) for i, w in enumerate((W1, W2, W3))]
+        n = max(map(len, vs)) + int(SR * 0.03)
         mix = np.zeros(n, dtype=np.float32)
-        for i, y in enumerate(ys):
-            o = int(SR * 0.035 * i)
-            mix[o:o + len(y)] += y * 0.62
-        return finish(mix, SR)
+        for v, o, g in zip(vs, (0, 0.012, 0.022), (0.5, 0.42, 0.42)):
+            i = int(SR * o)
+            mix[i:i + len(v)] += v * g
+        return finish(mix, SR, EQ_WITCH)
     return synth(voice, text)
 
 # ---------- what is spoken

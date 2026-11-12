@@ -22,6 +22,7 @@ def _smooth_noise(n, frames, rng):
     return np.convolve(x, k, mode='same') * np.sqrt(frames)
 
 def age(y, sr, f0=1.0, formant=1.0, jitter=0.0, tremor=(0, 0), breath=0.0, fry=0.0, whisper=0.0, sub=0.0, seed=1, range=1.0, creak=0.0, breath_from=0.0):
+    # (no delayed copies anywhere: a delayed double of a voice rings like a tin room)
     x = np.ascontiguousarray(y, dtype=np.float64)
     F0, t = pw.harvest(x, sr, f0_floor=60.0, f0_ceil=600.0, frame_period=FP)
     sp = pw.cheaptrick(x, F0, t, sr)
@@ -84,9 +85,7 @@ def age(y, sr, f0=1.0, formant=1.0, jitter=0.0, tremor=(0, 0), breath=0.0, fry=0
     out = pw.synthesize(g, np.ascontiguousarray(sp), np.ascontiguousarray(ap), sr, FP)
     if whisper:
         wsp = pw.synthesize(g, np.ascontiguousarray(sp), np.full_like(ap, 0.999), sr, FP)
-        d = int(sr * 0.014)
-        wsp = np.concatenate([np.zeros(d), wsp])[: len(out)]
-        out = out + whisper * 0.7 * wsp
+        out = out + whisper * 0.7 * wsp[: len(out)]
     if sub:
         low = pw.synthesize(np.where(voiced, g * 0.5, 0), np.ascontiguousarray(sp), np.ascontiguousarray(ap), sr, FP)
         out = out + sub * low[: len(out)]
@@ -136,3 +135,14 @@ def phrases(k, style, speed, text, sr, commas=False, gap=0.14, comma_gap=0.16):
         y, _ = k.create(c, voice=style, speed=speed, lang='en-gb')
         out += [trim(y, sr), np.zeros(int(sr * (comma_gap if c.rstrip().endswith(',') else gap)), dtype=np.float32)]
     return np.concatenate(out[:-1]) if out else np.zeros(sr // 2, dtype=np.float32)
+
+# a gentle master for every voice: no room, no echo; lows cleaned, esses softened, levels held
+MASTER = 'highpass=f=70,deesser=i=0.35,acompressor=threshold=-22dB:ratio=2.2:attack=10:release=150:makeup=1.5'
+
+def speak(k, style, speed, text, sr, pause=0.42, clause=0.14, lang='en-gb-x-rp'):
+    """A whole passage read in one go, with natural
+    pauses after sentences and clauses, in Received Pronunciation."""
+    # one pass over the whole passage (it splits only past ~500 phonemes), so the prosody
+    # flows across commas and full stops the way a reader's does
+    y, _ = k.create(text, voice=style, speed=speed, lang=lang, sentence_pause=pause, clause_pause=clause)
+    return y.astype(np.float32)

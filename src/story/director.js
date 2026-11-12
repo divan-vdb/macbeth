@@ -151,7 +151,9 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
     handle = null;
     for (const id of speakers) actors[id] && actors[id].talk && actors[id].talk(false);
     if (s.aside) moodTarget = 0;
-    if (!cut && !skipping) await sleep(buf ? 0.12 : 0.15);
+    // a short breath between speakers; the sisters leave longer silences between them
+    const hag = /Witch|^All$/.test(s.who);
+    if (!cut && !skipping) await sleep(hag ? 0.45 : buf ? 0.12 : 0.15);
   }
 
   // ---------- running a scene: a list of steps
