@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="icon" href="data:," />
+  <title>Macbeth</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="src/style.css" />
+  <!-- Libraries load from the jsDelivr CDN at pinned versions (free, and allowed by strict static hosts). -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.webgpu.js",
+      "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.webgpu.js",
+      "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.tsl.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/",
+      "@dimforge/rapier3d-compat": "https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.21.0/dist/rapier.mjs"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="app"></div>
+
+  <aside id="folio" class="folio" aria-label="The Folio"></aside>
+
+  <section id="diag" class="diag" aria-live="polite">
+    <div><b>Renderer</b> <span id="d-renderer">starting&hellip;</span></div>
+    <div><b>Physics</b> <span id="d-physics">starting&hellip;</span></div>
+    <div><b>Frame rate</b> <span id="d-fps">&ndash;</span></div>
+    <div><b>Objects</b> <span id="d-bodies">0</span></div>
+    <div><b>Screen</b> <span id="d-screen">&ndash;</span></div>
+    <div><b>Quality</b> <span id="d-quality">&ndash;</span></div>
+    <div id="d-error" class="err" hidden></div>
+  </section>
+
+  <nav class="controls">
+    <button id="btn-folio" type="button">Folio</button>
+    <button id="btn-map" type="button">Map</button>
+    <button id="btn-settings" type="button">Settings</button>
+    <button id="btn-sound" type="button" aria-pressed="false">Sound: tap</button>
+  </nav>
+  <!-- moved into the Settings panel at start-up -->
+  <div id="extra-controls" hidden>
+    <button id="btn-quality" type="button">Quality</button>
+    <button id="btn-stats" type="button" aria-pressed="false">Stats</button>
+    <button id="btn-thunder" type="button">Lightning</button>
+    <button id="btn-crates" type="button">Drop crates</button>
+  </div>
+
+  <div id="stick-zone" class="stick-zone" aria-hidden="true">
+    <div id="stick-base" class="stick-base"><div id="stick-knob" class="stick-knob"></div></div>
+  </div>
+  <button id="btn-jump" class="jump-btn" type="button" aria-label="Jump">Jump</button>
+
+  <div id="hint" class="hint"></div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

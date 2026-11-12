@@ -1,0 +1,1076 @@
+{
+"act1_s11": [
+{
+"key": "n.open",
+"who": "The Old Man",
+"lines": [
+"Sit closer to the fire, stranger. I am an old man now, and the cold has found my bones. But I remember that night on the heath... when the thunder rolled, and three strange sisters waited for a soldier coming home from war."
+],
+"narration": true,
+"dur": 16.88
+},
+{
+"key": "1.1.0",
+"dir": "Thunder and lightning. Enter three Witches",
+"item": 0,
+"scene": "1.1"
+},
+{
+"key": "1.1.1",
+"who": "First Witch",
+"lines": [
+"When shall we three meet again",
+"In thunder, lightning, or in rain?"
+],
+"item": 1,
+"scene": "1.1",
+"aside": false,
+"dur": 4.41
+},
+{
+"key": "1.1.2",
+"who": "Second Witch",
+"lines": [
+"When the hurlyburly’s done,",
+"When the battle’s lost and won."
+],
+"item": 2,
+"scene": "1.1",
+"aside": false,
+"dur": 4.58
+},
+{
+"key": "1.1.3",
+"who": "Third Witch",
+"lines": [
+"That will be ere the set of sun."
+],
+"item": 3,
+"scene": "1.1",
+"aside": false,
+"dur": 2.59
+},
+{
+"key": "1.1.4",
+"who": "First Witch",
+"lines": [
+"Where the place?"
+],
+"item": 4,
+"scene": "1.1",
+"aside": false,
+"dur": 1.78
+},
+{
+"key": "1.1.5",
+"who": "Second Witch",
+"lines": [
+"Upon the heath."
+],
+"item": 5,
+"scene": "1.1",
+"aside": false,
+"dur": 1.66
+},
+{
+"key": "1.1.6",
+"who": "Third Witch",
+"lines": [
+"There to meet with Macbeth."
+],
+"item": 6,
+"scene": "1.1",
+"aside": false,
+"dur": 2.37
+},
+{
+"key": "1.1.7",
+"who": "First Witch",
+"lines": [
+"I come, Graymalkin!"
+],
+"item": 7,
+"scene": "1.1",
+"aside": false,
+"dur": 2.19
+},
+{
+"key": "1.1.8",
+"who": "Second Witch",
+"lines": [
+"Paddock calls."
+],
+"item": 8,
+"scene": "1.1",
+"aside": false,
+"dur": 1.75
+},
+{
+"key": "1.1.9",
+"who": "Third Witch",
+"lines": [
+"Anon."
+],
+"item": 9,
+"scene": "1.1",
+"aside": false,
+"dur": 1.4
+},
+{
+"key": "1.1.10",
+"who": "All",
+"lines": [
+"Fair is foul, and foul is fair:",
+"Hover through the fog and filthy air."
+],
+"item": 10,
+"scene": "1.1",
+"aside": false,
+"dur": 6.2
+},
+{
+"key": "1.1.11",
+"dir": "Exeunt",
+"item": 11,
+"scene": "1.1"
+},
+{
+"key": "n.11end",
+"who": "The Old Man",
+"lines": [
+"Fair is foul, and foul is fair. Remember those words, stranger. Before this tale is done, you will not know the one from the other... and neither will he."
+],
+"narration": true,
+"dur": 11.16
+}
+],
+"act1_s13b": [
+{
+"key": "1.3.14",
+"dir": "Enter Macbeth and Banquo",
+"item": 14,
+"scene": "1.3"
+},
+{
+"key": "1.3.15",
+"who": "Macbeth",
+"lines": [
+"So foul and fair a day I have not seen."
+],
+"item": 15,
+"scene": "1.3",
+"aside": false,
+"dur": 2.93
+},
+{
+"key": "1.3.16",
+"who": "Banquo",
+"lines": [
+"How far is’t call’d to Forres? What are these",
+"So wither’d and so wild in their attire,",
+"That look not like the inhabitants o’ the earth,",
+"And yet are on’t? Live you? or are you aught",
+"That man may question? You seem to understand me,",
+"By each at once her chappy finger laying",
+"Upon her skinny lips: you should be women,",
+"And yet your beards forbid me to interpret",
+"That you are so."
+],
+"item": 16,
+"scene": "1.3",
+"aside": false,
+"dur": 22.14
+},
+{
+"key": "1.3.17",
+"who": "Macbeth",
+"lines": [
+"Speak, if you can: what are you?"
+],
+"item": 17,
+"scene": "1.3",
+"aside": false,
+"dur": 2.32
+},
+{
+"key": "1.3.18",
+"who": "First Witch",
+"lines": [
+"All hail, Macbeth! hail to thee, thane of Glamis!"
+],
+"item": 18,
+"scene": "1.3",
+"aside": false,
+"dur": 3.68
+},
+{
+"key": "1.3.19",
+"who": "Second Witch",
+"lines": [
+"All hail, Macbeth, hail to thee, thane of Cawdor!"
+],
+"item": 19,
+"scene": "1.3",
+"aside": false,
+"dur": 3.54
+},
+{
+"key": "1.3.20",
+"who": "Third Witch",
+"lines": [
+"All hail, Macbeth, thou shalt be king hereafter!"
+],
+"item": 20,
+"scene": "1.3",
+"aside": false,
+"dur": 3.61
+},
+{
+"key": "1.3.21",
+"who": "Banquo",
+"lines": [
+"Good sir, why do you start; and seem to fear",
+"Things that do sound so fair? I’ the name of truth,",
+"Are ye fantastical, or that indeed",
+"Which outwardly ye show? My noble partner",
+"You greet with present grace and great prediction",
+"Of noble having and of royal hope,",
+"That he seems rapt withal: to me you speak not.",
+"If you can look into the seeds of time,",
+"And say which grain will grow and which will not,",
+"Speak then to me, who neither beg nor fear",
+"Your favours nor your hate."
+],
+"item": 21,
+"scene": "1.3",
+"aside": false,
+"dur": 28.64
+},
+{
+"key": "1.3.22",
+"who": "First Witch",
+"lines": [
+"Hail!"
+],
+"item": 22,
+"scene": "1.3",
+"aside": false,
+"dur": 1.16
+},
+{
+"key": "1.3.23",
+"who": "Second Witch",
+"lines": [
+"Hail!"
+],
+"item": 23,
+"scene": "1.3",
+"aside": false,
+"dur": 1.28
+},
+{
+"key": "1.3.24",
+"who": "Third Witch",
+"lines": [
+"Hail!"
+],
+"item": 24,
+"scene": "1.3",
+"aside": false,
+"dur": 1.59
+},
+{
+"key": "1.3.25",
+"who": "First Witch",
+"lines": [
+"Lesser than Macbeth, and greater."
+],
+"item": 25,
+"scene": "1.3",
+"aside": false,
+"dur": 2.71
+},
+{
+"key": "1.3.26",
+"who": "Second Witch",
+"lines": [
+"Not so happy, yet much happier."
+],
+"item": 26,
+"scene": "1.3",
+"aside": false,
+"dur": 2.85
+},
+{
+"key": "1.3.27",
+"who": "Third Witch",
+"lines": [
+"Thou shalt get kings, though thou be none:",
+"So all hail, Macbeth and Banquo!"
+],
+"item": 27,
+"scene": "1.3",
+"aside": false,
+"dur": 5.14
+},
+{
+"key": "1.3.28",
+"who": "First Witch",
+"lines": [
+"Banquo and Macbeth, all hail!"
+],
+"item": 28,
+"scene": "1.3",
+"aside": false,
+"dur": 2.75
+},
+{
+"key": "1.3.29",
+"who": "Macbeth",
+"lines": [
+"Stay, you imperfect speakers, tell me more:",
+"By Sinel’s death I know I am thane of Glamis;",
+"But how of Cawdor? the thane of Cawdor lives,",
+"A prosperous gentleman; and to be king",
+"Stands not within the prospect of belief,",
+"No more than to be Cawdor. Say from whence",
+"You owe this strange intelligence? or why",
+"Upon this blasted heath you stop our way",
+"With such prophetic greeting? Speak, I charge you."
+],
+"item": 29,
+"scene": "1.3",
+"aside": false,
+"dur": 25.48
+},
+{
+"key": "1.3.30",
+"dir": "Witches vanish",
+"item": 30,
+"scene": "1.3"
+},
+{
+"key": "1.3.31",
+"who": "Banquo",
+"lines": [
+"The earth hath bubbles, as the water has,",
+"And these are of them. Whither are they vanish’d?"
+],
+"item": 31,
+"scene": "1.3",
+"aside": false,
+"dur": 5.4
+},
+{
+"key": "1.3.32",
+"who": "Macbeth",
+"lines": [
+"Into the air; and what seem’d corporal melted",
+"As breath into the wind. Would they had stay’d!"
+],
+"item": 32,
+"scene": "1.3",
+"aside": false,
+"dur": 5.85
+},
+{
+"key": "1.3.33",
+"who": "Banquo",
+"lines": [
+"Were such things here as we do speak about?",
+"Or have we eaten on the insane root",
+"That takes the reason prisoner?"
+],
+"item": 33,
+"scene": "1.3",
+"aside": false,
+"dur": 6.64
+},
+{
+"key": "1.3.34",
+"who": "Macbeth",
+"lines": [
+"Your children shall be kings."
+],
+"item": 34,
+"scene": "1.3",
+"aside": false,
+"dur": 2.25
+},
+{
+"key": "1.3.35",
+"who": "Banquo",
+"lines": [
+"You shall be king."
+],
+"item": 35,
+"scene": "1.3",
+"aside": false,
+"dur": 1.5
+},
+{
+"key": "1.3.36",
+"who": "Macbeth",
+"lines": [
+"And thane of Cawdor too: went it not so?"
+],
+"item": 36,
+"scene": "1.3",
+"aside": false,
+"dur": 3.17
+},
+{
+"key": "1.3.37",
+"who": "Banquo",
+"lines": [
+"To the selfsame tune and words. Who’s here?"
+],
+"item": 37,
+"scene": "1.3",
+"aside": false,
+"dur": 2.84
+}
+],
+"act1_s13a": [
+{
+"key": "n.walk",
+"who": "The Old Man",
+"lines": [
+"Banquo. As brave as Macbeth, and the steadier of the two. Mark him well, stranger. The sisters will have a word for him too."
+],
+"narration": true,
+"dur": 9.71
+},
+{
+"key": "1.3.0",
+"dir": "Thunder. Enter the three Witches",
+"item": 0,
+"scene": "1.3"
+},
+{
+"key": "1.3.1",
+"who": "First Witch",
+"lines": [
+"Where hast thou been, sister?"
+],
+"item": 1,
+"scene": "1.3",
+"aside": false,
+"dur": 2.66
+},
+{
+"key": "1.3.2",
+"who": "Second Witch",
+"lines": [
+"Killing swine."
+],
+"item": 2,
+"scene": "1.3",
+"aside": false,
+"dur": 1.8
+},
+{
+"key": "1.3.3",
+"who": "Third Witch",
+"lines": [
+"Sister, where thou?"
+],
+"item": 3,
+"scene": "1.3",
+"aside": false,
+"dur": 2.1
+},
+{
+"key": "1.3.4",
+"who": "First Witch",
+"lines": [
+"A sailor’s wife had chestnuts in her lap,",
+"And munch’d, and munch’d, and munch’d:—",
+"‘Give me,’ quoth I:",
+"‘Aroint thee, witch!’ the rump-fed ronyon cries.",
+"Her husband’s to Aleppo gone, master o’ the Tiger:",
+"But in a sieve I’ll thither sail,",
+"And, like a rat without a tail,",
+"I’ll do, I’ll do, and I’ll do."
+],
+"item": 4,
+"scene": "1.3",
+"aside": false,
+"dur": 18.44
+},
+{
+"key": "1.3.5",
+"who": "Second Witch",
+"lines": [
+"I’ll give thee a wind."
+],
+"item": 5,
+"scene": "1.3",
+"aside": false,
+"dur": 1.91
+},
+{
+"key": "1.3.6",
+"who": "First Witch",
+"lines": [
+"Thou’rt kind."
+],
+"item": 6,
+"scene": "1.3",
+"aside": false,
+"dur": 2.01
+},
+{
+"key": "1.3.7",
+"who": "Third Witch",
+"lines": [
+"And I another."
+],
+"item": 7,
+"scene": "1.3",
+"aside": false,
+"dur": 1.78
+},
+{
+"key": "1.3.8",
+"who": "First Witch",
+"lines": [
+"I myself have all the other,",
+"And the very ports they blow,",
+"All the quarters that they know",
+"I’ the shipman’s card.",
+"I will drain him dry as hay:",
+"Sleep shall neither night nor day",
+"Hang upon his pent-house lid;",
+"He shall live a man forbid:",
+"Weary se’nnights nine times nine",
+"Shall he dwindle, peak and pine:",
+"Though his bark cannot be lost,",
+"Yet it shall be tempest-tost.",
+"Look what I have."
+],
+"item": 8,
+"scene": "1.3",
+"aside": false,
+"dur": 24.15
+},
+{
+"key": "1.3.9",
+"who": "Second Witch",
+"lines": [
+"Show me, show me."
+],
+"item": 9,
+"scene": "1.3",
+"aside": false,
+"dur": 1.75
+},
+{
+"key": "1.3.10",
+"who": "First Witch",
+"lines": [
+"Here I have a pilot’s thumb,",
+"Wreck’d as homeward he did come."
+],
+"item": 10,
+"scene": "1.3",
+"aside": false,
+"dur": 4.18
+},
+{
+"key": "1.3.11",
+"dir": "Drum within",
+"item": 11,
+"scene": "1.3"
+},
+{
+"key": "1.3.12",
+"who": "Third Witch",
+"lines": [
+"A drum, a drum!",
+"Macbeth doth come."
+],
+"item": 12,
+"scene": "1.3",
+"aside": false,
+"dur": 3.12
+},
+{
+"key": "1.3.13",
+"who": "All",
+"lines": [
+"The weird sisters, hand in hand,",
+"Posters of the sea and land,",
+"Thus do go about, about:",
+"Thrice to thine and thrice to mine",
+"And thrice again, to make up nine.",
+"Peace! the charm’s wound up."
+],
+"item": 13,
+"scene": "1.3",
+"aside": false,
+"dur": 17.54
+}
+],
+"act1_s13c": [
+{
+"key": "1.3.38",
+"dir": "Enter Ross and Angus",
+"item": 38,
+"scene": "1.3"
+},
+{
+"key": "1.3.39",
+"who": "Ross",
+"lines": [
+"The king hath happily received, Macbeth,",
+"The news of thy success; and when he reads",
+"Thy personal venture in the rebels’ fight,",
+"His wonders and his praises do contend",
+"Which should be thine or his: silenced with that,",
+"In viewing o’er the rest o’ the selfsame day,",
+"He finds thee in the stout Norweyan ranks,",
+"Nothing afeard of what thyself didst make,",
+"Strange images of death. As thick as hail",
+"Came post with post; and every one did bear",
+"Thy praises in his kingdom’s great defence,",
+"And pour’d them down before him."
+],
+"item": 39,
+"scene": "1.3",
+"aside": false,
+"dur": 28.3
+},
+{
+"key": "1.3.40",
+"who": "Angus",
+"lines": [
+"We are sent",
+"To give thee from our royal master thanks;",
+"Only to herald thee into his sight,",
+"Not pay thee."
+],
+"item": 40,
+"scene": "1.3",
+"aside": false,
+"dur": 6.74
+},
+{
+"key": "1.3.41",
+"who": "Ross",
+"lines": [
+"And, for an earnest of a greater honour,",
+"He bade me, from him, call thee thane of Cawdor:",
+"In which addition, hail, most worthy thane!",
+"For it is thine."
+],
+"item": 41,
+"scene": "1.3",
+"aside": false,
+"dur": 7.95
+},
+{
+"key": "1.3.42",
+"who": "Banquo",
+"lines": [
+"What, can the devil speak true?"
+],
+"item": 42,
+"scene": "1.3",
+"aside": false,
+"dur": 2.08
+},
+{
+"key": "1.3.43",
+"who": "Macbeth",
+"lines": [
+"The thane of Cawdor lives: why do you dress me",
+"In borrow’d robes?"
+],
+"item": 43,
+"scene": "1.3",
+"aside": false,
+"dur": 4.3
+},
+{
+"key": "1.3.44",
+"who": "Angus",
+"lines": [
+"Who was the thane lives yet;",
+"But under heavy judgment bears that life",
+"Which he deserves to lose. Whether he was combined",
+"With those of Norway, or did line the rebel",
+"With hidden help and vantage, or that with both",
+"He labour’d in his country’s wreck, I know not;",
+"But treasons capital, confess’d and proved,",
+"Have overthrown him."
+],
+"item": 44,
+"scene": "1.3",
+"aside": false,
+"dur": 21.21
+},
+{
+"key": "1.3.45a",
+"who": "Macbeth",
+"lines": [
+"Glamis, and thane of Cawdor!",
+"The greatest is behind."
+],
+"item": 45,
+"scene": "1.3",
+"aside": true,
+"dur": 4.39
+},
+{
+"key": "1.3.45b",
+"who": "Macbeth",
+"lines": [
+"Thanks for your pains."
+],
+"item": 45,
+"scene": "1.3",
+"aside": false,
+"dur": 1.8
+},
+{
+"key": "1.3.45c",
+"who": "Macbeth",
+"lines": [
+"Do you not hope your children shall be kings,",
+"When those that gave the thane of Cawdor to me",
+"Promised no less to them?"
+],
+"item": 45,
+"scene": "1.3",
+"aside": false,
+"dur": 6.69
+},
+{
+"key": "1.3.46",
+"who": "Banquo",
+"lines": [
+"That trusted home",
+"Might yet enkindle you unto the crown,",
+"Besides the thane of Cawdor. But ’tis strange:",
+"And oftentimes, to win us to our harm,",
+"The instruments of darkness tell us truths,",
+"Win us with honest trifles, to betray’s",
+"In deepest consequence.",
+"Cousins, a word, I pray you."
+],
+"item": 46,
+"scene": "1.3",
+"aside": false,
+"dur": 17.93
+},
+{
+"key": "1.3.47a",
+"who": "Macbeth",
+"lines": [
+"Two truths are told,",
+"As happy prologues to the swelling act",
+"Of the imperial theme."
+],
+"item": 47,
+"scene": "1.3",
+"aside": true,
+"dur": 6.19
+},
+{
+"key": "1.3.47b",
+"who": "Macbeth",
+"lines": [
+"I thank you, gentlemen."
+],
+"item": 47,
+"scene": "1.3",
+"aside": false,
+"dur": 2.14
+},
+{
+"key": "1.3.47c",
+"who": "Macbeth",
+"lines": [
+"This supernatural soliciting",
+"Cannot be ill, cannot be good: if ill,",
+"Why hath it given me earnest of success,",
+"Commencing in a truth? I am thane of Cawdor:",
+"If good, why do I yield to that suggestion",
+"Whose horrid image doth unfix my hair",
+"And make my seated heart knock at my ribs,",
+"Against the use of nature? Present fears",
+"Are less than horrible imaginings:",
+"My thought, whose murder yet is but fantastical,",
+"Shakes so my single state of man that function",
+"Is smother’d in surmise, and nothing is",
+"But what is not."
+],
+"item": 47,
+"scene": "1.3",
+"aside": true,
+"dur": 36.7
+},
+{
+"key": "1.3.48",
+"who": "Banquo",
+"lines": [
+"Look, how our partner’s rapt."
+],
+"item": 48,
+"scene": "1.3",
+"aside": false,
+"dur": 1.96
+},
+{
+"key": "1.3.49",
+"who": "Macbeth",
+"lines": [
+"If chance will have me king, why, chance may crown me,",
+"Without my stir."
+],
+"item": 49,
+"scene": "1.3",
+"aside": true,
+"dur": 5.57
+},
+{
+"key": "1.3.50",
+"who": "Banquo",
+"lines": [
+"New horrors come upon him,",
+"Like our strange garments, cleave not to their mould",
+"But with the aid of use."
+],
+"item": 50,
+"scene": "1.3",
+"aside": false,
+"dur": 6.29
+},
+{
+"key": "1.3.51",
+"who": "Macbeth",
+"lines": [
+"Come what come may,",
+"Time and the hour runs through the roughest day."
+],
+"item": 51,
+"scene": "1.3",
+"aside": true,
+"dur": 4.74
+},
+{
+"key": "1.3.52",
+"who": "Banquo",
+"lines": [
+"Worthy Macbeth, we stay upon your leisure."
+],
+"item": 52,
+"scene": "1.3",
+"aside": false,
+"dur": 2.55
+},
+{
+"key": "1.3.53",
+"who": "Macbeth",
+"lines": [
+"Give me your favour: my dull brain was wrought",
+"With things forgotten. Kind gentlemen, your pains",
+"Are register’d where every day I turn",
+"The leaf to read them. Let us toward the king.",
+"Think upon what hath chanced, and, at more time,",
+"The interim having weigh’d it, let us speak",
+"Our free hearts each to other."
+],
+"item": 53,
+"scene": "1.3",
+"aside": false,
+"dur": 18.4
+},
+{
+"key": "1.3.54",
+"who": "Banquo",
+"lines": [
+"Very gladly."
+],
+"item": 54,
+"scene": "1.3",
+"aside": false,
+"dur": 1.46
+},
+{
+"key": "1.3.55",
+"who": "Macbeth",
+"lines": [
+"Till then, enough. Come, friends."
+],
+"item": 55,
+"scene": "1.3",
+"aside": false,
+"dur": 2.53
+},
+{
+"key": "1.3.56",
+"dir": "Exeunt",
+"item": 56,
+"scene": "1.3"
+},
+{
+"key": "n.13end",
+"who": "The Old Man",
+"lines": [
+"Two of the sisters' promises came true within the hour. The third was a crown. And did you see how fast the thought of murder came to him? No one had spoken of it. Now, to Forres. The king is waiting to thank him."
+],
+"narration": true,
+"dur": 15.93
+}
+],
+"act1_s12": [
+{
+"key": "n.12a",
+"who": "The Old Man",
+"lines": [
+"Now, while the sisters went about their business, old King Duncan waited in his camp near Forres for news of the battle. A gentle king. Too trusting, some would say. Then a soldier was carried in... bleeding, but with a tale to tell."
+],
+"narration": true,
+"dur": 17.42
+},
+{
+"key": "1.2.3b",
+"who": "Sergeant",
+"lines": [
+"…",
+"For brave Macbeth—well he deserves that name—",
+"Disdaining fortune, with his brandish’d steel,",
+"Which smoked with bloody execution,",
+"Like valour’s minion carved out his passage",
+"Till he faced the slave;",
+"Which ne’er shook hands, nor bade farewell to him,",
+"Till he unseam’d him from the nave to the chaps,",
+"And fix’d his head upon our battlements."
+],
+"item": 3,
+"scene": "1.2",
+"aside": false,
+"dur": 20.21
+},
+{
+"key": "1.2.4",
+"who": "Duncan",
+"lines": [
+"O valiant cousin! worthy gentleman!"
+],
+"item": 4,
+"scene": "1.2",
+"aside": false,
+"dur": 3.09
+},
+{
+"key": "n.12b",
+"who": "The Old Man",
+"lines": [
+"Macdonwald the rebel was dead, opened from belly to jaw by Macbeth's own sword. But then the King of Norway struck with fresh men, and helping him in secret was one of Duncan's own lords: the Thane of Cawdor. Still Macbeth and Banquo held. Then Ross rode in from Fife."
+],
+"narration": true,
+"dur": 21.58
+},
+{
+"key": "1.2.12",
+"who": "Ross",
+"lines": [
+"God save the king!"
+],
+"item": 12,
+"scene": "1.2",
+"aside": false,
+"dur": 1.75
+},
+{
+"key": "1.2.13",
+"who": "Duncan",
+"lines": [
+"Whence camest thou, worthy thane?"
+],
+"item": 13,
+"scene": "1.2",
+"aside": false,
+"dur": 2.61
+},
+{
+"key": "1.2.14",
+"who": "Ross",
+"lines": [
+"From Fife, great king;",
+"Where the Norweyan banners flout the sky",
+"And fan our people cold. Norway himself,",
+"With terrible numbers,",
+"Assisted by that most disloyal traitor",
+"The thane of Cawdor, began a dismal conflict;",
+"Till that Bellona’s bridegroom, lapp’d in proof,",
+"Confronted him with self-comparisons,",
+"Point against point rebellious, arm ’gainst arm.",
+"Curbing his lavish spirit: and, to conclude,",
+"The victory fell on us."
+],
+"item": 14,
+"scene": "1.2",
+"aside": false,
+"dur": 23.62
+},
+{
+"key": "1.2.15",
+"who": "Duncan",
+"lines": [
+"Great happiness!"
+],
+"item": 15,
+"scene": "1.2",
+"aside": false,
+"dur": 1.47
+},
+{
+"key": "1.2.17",
+"who": "Duncan",
+"lines": [
+"No more that thane of Cawdor shall deceive",
+"Our bosom interest: go pronounce his present death,",
+"And with his former title greet Macbeth."
+],
+"item": 17,
+"scene": "1.2",
+"aside": false,
+"dur": 9.06
+},
+{
+"key": "1.2.18",
+"who": "Ross",
+"lines": [
+"I’ll see it done."
+],
+"item": 18,
+"scene": "1.2",
+"aside": false,
+"dur": 1.53
+},
+{
+"key": "1.2.19",
+"who": "Duncan",
+"lines": [
+"What he hath lost noble Macbeth hath won."
+],
+"item": 19,
+"scene": "1.2",
+"aside": false,
+"dur": 2.95
+},
+{
+"key": "n.12c",
+"who": "The Old Man",
+"lines": [
+"So the king stripped the traitor of his title, and gave it to Macbeth. But Macbeth knew none of this. He was out on the heath with Banquo, walking home from the slaughter... toward the sisters."
+],
+"narration": true,
+"dur": 13.27
+}
+]
+}
