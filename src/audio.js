@@ -534,6 +534,76 @@ export function playBuffer(buf, { ch = 'voices', gain = 1 } = {}) {
   };
 }
 
+// ---------- music: one cue at a time (assets/music/<cue>.json). Each pass is scheduled to
+// start as the last one reaches its loop point, so the last pass's tail rings into the next;
+// changing cue crossfades. Pausing suspends the context, and the music waits with it.
+let musicBase = '';
+export function setMusicBase(url) {
+  musicBase = url;
+}
+const musicData = new Map();
+function musicBuffer(name) {
+  if (!musicData.has(name))
+    musicData.set(name, fetch(`${musicBase}${name}.json`).then((r) => (r.ok ? r.json() : null)).then(async (j) => {
+      if (!j) return null;
+      const bin = atob(j.mp3);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return { buf: await ctx.decodeAudioData(bytes.buffer), loop: j.loop };
+    }).catch(() => null));
+  return musicData.get(name);
+}
+let music = null; // { name, gain, next, loop, buf, sources }
+// the score sits under the world, and dips further whenever someone speaks
+let duckGain = null;
+function musicBus() {
+  if (!duckGain) {
+    duckGain = ctx.createGain();
+    duckGain.gain.value = 0.6;
+    duckGain.connect(channel('music'));
+  }
+  return duckGain;
+}
+export function duck(on) {
+  if (!ctx || !started) return;
+  musicBus().gain.setTargetAtTime(on ? 0.22 : 0.6, ctx.currentTime, on ? 0.15 : 0.6);
+}
+let musicWanted = null;
+export function setMusic(name) {
+  if (!ctx || !started || name === musicWanted) return;
+  musicWanted = name;
+  const old = music;
+  music = null;
+  if (old) {
+    old.gain.gain.setTargetAtTime(0, ctx.currentTime, 0.9);
+    later(5, () => old.sources.forEach((s) => { try { s.stop(); } catch (e) { /* done */ } }));
+    clearInterval(old.timer);
+  }
+  if (!name) return;
+  musicBuffer(name).then((m) => {
+    if (!m || musicWanted !== name) return;
+    const gain = ctx.createGain();
+    gain.gain.value = 0.0001;
+    gain.gain.setTargetAtTime(1, ctx.currentTime, 1.2);
+    gain.connect(musicBus());
+    const cue = { name, gain, next: ctx.currentTime + 0.05, loop: m.loop, buf: m.buf, sources: [] };
+    const schedule = () => {
+      while (cue.next < ctx.currentTime + 3) {
+        const src = ctx.createBufferSource();
+        src.buffer = cue.buf;
+        src.connect(gain);
+        src.start(cue.next);
+        cue.sources.push(src);
+        src.onended = () => cue.sources.splice(cue.sources.indexOf(src), 1);
+        cue.next += cue.loop;
+      }
+    };
+    schedule();
+    cue.timer = setInterval(schedule, 1000);
+    music = cue;
+  });
+}
+
 // ---------- small sound effects for the game's actions, all synthesised
 function env(node, at, peak, attack, decay) {
   node.gain.setValueAtTime(0.0001, at);
@@ -564,11 +634,61 @@ function tone(at, { freq = 440, to = 0, type = 'sine', peak = 0.05, attack = 0.0
   o.start(at);
   o.stop(at + attack + decay + 0.05);
 }
+// Blows landing: what is struck decides the sound. level 0..1+ (a heavy blow is louder)
+export function impact(material, level = 1) {
+  if (!ctx || !started) return;
+  const t = ctx.currentTime + 0.005;
+  const fx = channel('effects');
+  const L = Math.min(1.6, level);
+  switch (material) {
+    case 'straw': // a blade into a bound straw man: a dry crunch and a dull thump
+      noiseHit(t, { freq: 180, q: 0.8, peak: 0.12 * L, decay: 0.12, brown: true, out: fx });
+      for (let i = 0; i < 5; i++) noiseHit(t + i * 0.012 + Math.random() * 0.01, { type: 'highpass', freq: rnd(1800, 3800), q: 0.7, peak: 0.045 * L, decay: 0.05, out: fx });
+      break;
+    case 'sack': // a fist into the straw: the thump without the crunch
+      noiseHit(t, { freq: 150, q: 0.9, peak: 0.13 * L, decay: 0.1, brown: true, out: fx });
+      noiseHit(t, { freq: 900, q: 1, peak: 0.03 * L, decay: 0.04, out: fx });
+      break;
+    case 'wood': // a hollow knock on a wooden post
+      tone(t, { freq: rnd(170, 230), to: 140, peak: 0.12 * L, decay: 0.16, out: fx });
+      tone(t, { freq: rnd(420, 520), peak: 0.04 * L, decay: 0.09, out: fx });
+      noiseHit(t, { freq: 1600, q: 2, peak: 0.07 * L, decay: 0.03, out: fx });
+      break;
+    case 'metal': // steel on the iron rim of a shield
+      for (const f of [612, 1460, 2730, 3990]) tone(t, { freq: f * rnd(0.98, 1.02), peak: 0.03 * L, decay: 0.7, out: fx });
+      noiseHit(t, { freq: 3000, q: 1.5, peak: 0.06 * L, decay: 0.05, out: fx });
+      break;
+    case 'clay': // a pot bursting into shards
+      noiseHit(t, { type: 'highpass', freq: 1200, q: 0.7, peak: 0.12 * L, decay: 0.18, out: fx });
+      for (let i = 0; i < 6; i++) tone(t + Math.random() * 0.12, { freq: rnd(1800, 4200), peak: 0.015 * L, decay: rnd(0.05, 0.15), out: fx });
+      noiseHit(t + 0.15, { type: 'highpass', freq: 2500, q: 0.7, peak: 0.03 * L, decay: 0.2, out: fx });
+      break;
+    case 'turf': // into the ground
+      noiseHit(t, { freq: 120, q: 0.8, peak: 0.08 * L, decay: 0.1, brown: true, out: fx });
+      break;
+    case 'stone': // a pebble on rock
+      noiseHit(t, { freq: 2800, q: 5, peak: 0.06 * L, decay: 0.04, out: fx });
+      tone(t, { freq: rnd(1900, 2400), peak: 0.02 * L, decay: 0.07, out: fx });
+      break;
+  }
+}
+
 export function sfx(name) {
   if (!ctx || !started) return;
   const t = ctx.currentTime + 0.01;
   const fx = channel('effects');
   switch (name) {
+    case 'curtain': // the curtain rises: a soft timpani roll and a breath of cymbal
+      for (let i = 0; i < 14; i++) tone(t + i * 0.06, { freq: 73, peak: 0.02 + i * 0.006, decay: 0.12, out: fx });
+      tone(t + 0.85, { freq: 73, to: 70, peak: 0.16, decay: 1.6, out: fx });
+      noiseHit(t + 0.3, { type: 'highpass', freq: 5000, q: 0.5, peak: 0.03, attack: 0.5, decay: 1.4, out: fx });
+      break;
+    case 'swish': // a blade cutting the air
+      noiseHit(t, { type: 'bandpass', freq: 700, sweepTo: 3600, q: 2.2, peak: 0.06, attack: 0.04, decay: 0.16, out: fx });
+      break;
+    case 'whoosh': // an arm or a throw through the air
+      noiseHit(t, { type: 'bandpass', freq: 260, sweepTo: 900, q: 1.2, peak: 0.06, attack: 0.05, decay: 0.18, out: fx });
+      break;
     case 'drum': // a war drum across the heath: "A drum, a drum! Macbeth doth come."
       for (let i = 0; i < 9; i++) {
         const at = t + i * 0.52 + (i % 3 === 2 ? 0.12 : 0);

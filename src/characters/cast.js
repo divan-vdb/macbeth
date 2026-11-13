@@ -74,6 +74,12 @@ export const SPECS = {
     hide: ['Hood'], height: 1.8, hair: '#3a2416',
     cloak: { color: '#123f42', trim: 'rgba(200,170,90,0.95)', length: 1.1 }, sword: true, idle: 'Idle_Loop', torso: 0.15,
   },
+  // the Captain of the training yard: bald, grey-bearded, arms folded, a short dark cloak
+  captain: {
+    outfit: 'outfit_banquo', dye: 'dye_captain', head: 'head_male', parts: ['hair_beard', 'eyebrows_regular'],
+    hide: ['Hood'], height: 1.82, hair: '#8f877a',
+    cloak: { color: '#2b2418', trim: 'rgba(120,96,60,0.9)', length: 0.95 }, sword: true, idle: 'Idle_FoldArms_Loop', torso: 0.17,
+  },
   angus: {
     outfit: 'outfit_banquo', dye: 'dye_angus', head: 'head_male', parts: ['hair_long', 'hair_beard', 'eyebrows_regular'],
     hide: ['Hood', 'Pauldron'], height: 1.78, hair: '#d6d1c6',
@@ -406,9 +412,34 @@ export async function createCharacter(id, opts = {}) {
       tgt.walk = 1 - tgt.jog;
     }
     const k = Math.min(1, dt * 9);
+    // a one-shot action (a blow, a throw, a block) takes over from the base blend
+    let target = 0;
+    if (cur) {
+      const t = cur.a.time;
+      for (const e of cur.events) if (!e.fired && t >= e.t) {
+        e.fired = true;
+        e.fn();
+      }
+      if (cur.hold !== null && t >= cur.hold) {
+        cur.a.time = cur.hold;
+        cur.a.paused = true;
+      }
+      const left = cur.end - t;
+      target = cur.hold !== null ? 1 : left > cur.fadeOut ? 1 : Math.max(0, left / cur.fadeOut);
+      if (t >= cur.end - 1e-3 && cur.hold === null) {
+        cur.a.setEffectiveWeight(0);
+        cur.a.stop();
+        const done = cur.done;
+        cur = null;
+        target = 0;
+        if (done) done();
+      }
+    }
+    aw += (target - aw) * Math.min(1, dt * (target > aw ? 1 / Math.max(0.02, cur ? cur.fadeIn : 0.1) : 10));
+    if (cur) cur.a.setEffectiveWeight(aw);
     for (const n in w) {
       w[n] += (tgt[n] - w[n]) * k;
-      if (A[n]) A[n].setEffectiveWeight(w[n]);
+      if (A[n]) A[n].setEffectiveWeight(w[n] * (1 - aw));
     }
     // match foot speed to ground speed
     if (A.walk) A.walk.timeScale = sp > 0.05 ? Math.min(1.8, Math.max(0.6, sp / 1.3)) : 1;
@@ -532,7 +563,57 @@ export async function createCharacter(id, opts = {}) {
     wrap.traverse((o) => o.userData.hilt && (o.visible = on));
   }
 
+  // one-shot actions: perform(clip, { speed, events: [{ t, fn }], hold: seconds | null, from, to, done })
+  // plays the clip once over everything else; hold pauses it at a pose until release()
+  let cur = null, aw = 0;
+  function perform(name, { speed = 1, fadeIn = 0.06, fadeOut = 0.14, events = [], hold = null, from = 0, to = null, done = null } = {}) {
+    const a = act(name, false);
+    if (!a) return null;
+    if (cur && cur.a !== a) {
+      cur.a.setEffectiveWeight(0);
+      cur.a.stop();
+    }
+    a.reset();
+    a.setLoop(THREE.LoopOnce, 1);
+    a.clampWhenFinished = true;
+    a.timeScale = speed;
+    a.enabled = true;
+    a.play();
+    a.time = from;
+    cur = { a, name, end: to != null ? to : a.getClip().duration, events: events.map((e) => ({ ...e, fired: false })), hold, fadeIn, fadeOut, done };
+    return cur;
+  }
+  function release() {
+    if (!cur) return;
+    cur.hold = null;
+    cur.a.paused = false;
+  }
+  const busy = () => !!cur;
+  // where a bone is at each moment of a clip (to time blows to the frame a swing lands)
+  function probe(name, bone = 'hand_r', N = 60) {
+    const a = act(name, false);
+    if (!a) return null;
+    for (const n in A) if (A[n]) A[n].setEffectiveWeight(0);
+    a.setEffectiveWeight(1);
+    a.play();
+    const dur = a.getClip().duration, out = [];
+    for (let i = 0; i <= N; i++) {
+      a.time = (i / N) * dur;
+      mixer.update(0);
+      wrap.updateMatrixWorld(true);
+      const e = bones[bone].matrixWorld.elements;
+      out.push([+(a.time).toFixed(3), +e[12].toFixed(3), +e[13].toFixed(3), +e[14].toFixed(3)]);
+    }
+    a.setEffectiveWeight(0);
+    a.stop();
+    A.idle.setEffectiveWeight(1);
+    return out;
+  }
+
   // speaking: talk with the hands (the sisters keep their own uncanny idles)
   const talk = (on) => setIdle(on && !/witch/.test(id) ? 'Idle_Talking_Loop' : spec.idle);
-  return { root: wrap, update, settle, height: spec.height, id, bones, hold, stow, setIdle, sheathed, talk };
+  return { root: wrap, update, settle, height: spec.height, id, bones, hold, stow, setIdle, sheathed, talk, perform, release, busy, probe,
+    get action() {
+      return cur ? cur.name : null;
+    } };
 }

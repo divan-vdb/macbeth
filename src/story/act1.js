@@ -17,6 +17,7 @@ const STEPS = ['s11', 'train', 'walk', 'forres', 'end'];
 export function createAct1({ director, game, stage, folio, segments, lightning, mist, hollow, cauldronAt, fireAt, player, macbeth, heightAt, camera, loadActor }) {
   let step = 's11';
   let busy = false, partA = 'todo', banquoWalk = false;
+  let cue = null; // the score the story asks for (the heath's own music otherwise)
   const H = hollow.treeAt;
   // the hollow's frame: f points back the way the party comes (from the stone circle)
   const f = new THREE.Vector3(fireAt.x - H.x, 0, fireAt.z - H.z).normalize();
@@ -128,6 +129,7 @@ export function createAct1({ director, game, stage, folio, segments, lightning, 
     const k = cauldronAt;
     const ky = heightAt(k.x, k.z);
     const toFire = Math.atan2(fireAt.x - k.x, fireAt.z - k.z);
+    cue = 'hearth';
     await director.run(
       [
         { cine: true, shot: hearth(0.4, 2.7, 0.95, 0.55), say: 'n.open' },
@@ -135,8 +137,9 @@ export function createAct1({ director, game, stage, folio, segments, lightning, 
           '1.1.0': {
             shot: { from: at(k.x + Math.sin(toFire) * 5.5, ky + 1.1, k.z + Math.cos(toFire) * 5.5), at: at(k.x, ky + 1.1, k.z), drift: 0.18, dur: 9 },
             do: () => {
+              cue = 'witches';
               lightning.strike({ near: true });
-              director.card('Act I &middot; Scene I', 'A desert place', 'Thunder and lightning');
+              if (!director.skipping) director.card('Act I &middot; Scene I', 'A desert place', 'Thunder and lightning');
             },
             wait: 1.2,
           },
@@ -148,6 +151,7 @@ export function createAct1({ director, game, stage, folio, segments, lightning, 
       { actors: actors() },
     );
     folio.finish('1.1');
+    cue = null;
     step = 'train';
     arrange();
     game.holdRaven(false);
@@ -158,13 +162,16 @@ export function createAct1({ director, game, stage, folio, segments, lightning, 
   // ---------- Act I, scene 2: the Old Man tells it by his fire
   async function play12() {
     busy = true;
+    cue = 'hearth';
     folio.goto('1.2');
     await director.run(
       stepsFor('act1_s12', {
         'n.12a': {
           cine: true,
           shot: hearth(2.2, 2.6, 0.85, 0.5),
-          do: () => director.card('Act I &middot; Scene II', 'A camp near Forres', 'As the Old Man tells it'),
+          do: () => {
+            if (!director.skipping) director.card('Act I &middot; Scene II', 'A camp near Forres', 'As the Old Man tells it'); // the Old Man begins as the curtain rises
+          },
         },
         '1.2.3b': { shot: hearth(3.6, 2.2, 0.7, 0.4) },
         '1.2.4': { shot: null },
@@ -177,6 +184,7 @@ export function createAct1({ director, game, stage, folio, segments, lightning, 
       { actors: actors() },
     );
     folio.finish('1.2');
+    cue = null;
     step = 'walk';
     arrange();
     busy = false;
@@ -189,6 +197,7 @@ export function createAct1({ director, game, stage, folio, segments, lightning, 
   // ---------- Act I, scene 3, part A: overheard on the approach
   async function playPartA() {
     partA = 'playing';
+    cue = 'witches';
     folio.goto('1.3');
     for (const id of WITCHES) stage.face(id, { x: H.x + f.x * 2, z: H.z + f.z * 2 }); // conferring
     const towardParty = () => WITCHES.forEach((id) => stage.face(id, macbeth));
@@ -197,7 +206,7 @@ export function createAct1({ director, game, stage, folio, segments, lightning, 
         '1.3.0': { do: () => {
           lightning.strike({ near: false });
           bank.set(1);
-          director.card('Act I &middot; Scene III', 'A heath near Forres', null, 3);
+          if (!director.skipping) director.card('Act I &middot; Scene III', 'A heath near Forres', null, 3);
         } },
         '1.3.11': { do: () => {
           sfx('drum');
@@ -230,6 +239,7 @@ export function createAct1({ director, game, stage, folio, segments, lightning, 
   }
   async function playParts() {
     busy = true;
+    cue = 'witches';
     const banquo = stage.get('banquo');
     const pair = [macbeth, banquo];
     const behindWitches = { from: () => at(H.x + f.x * 0.6 + side.x * 0.9, H.y + 1.9, H.z + f.z * 0.6 + side.z * 0.9), at: () => at((MAC[0] + BANQ[0]) / 2, H.y + 1.4, (MAC[1] + BANQ[1]) / 2), drift: 0.12, dur: 6 };
@@ -254,7 +264,10 @@ export function createAct1({ director, game, stage, folio, segments, lightning, 
           '1.3.14': { shot: behindWitches, wait: 0.2 },
           '1.3.15': { shot: faceShot(macbeth, { dist: 1.6, side: -0.35, drift: 0.12, dur: 5 }) },
           '1.3.29': { shot: faceShot(macbeth, { dist: 1.4, side: 0.4, drift: 0.16, dur: 26 }) },
-          '1.3.30': { shot: wideShot(pair, { bearing: Math.atan2(-f.x, -f.z) + 0.3, dist: 6, up: 1.8, dur: 6 }), do: () => vanish('hollow'), wait: 0.3 },
+          '1.3.30': { shot: wideShot(pair, { bearing: Math.atan2(-f.x, -f.z) + 0.3, dist: 6, up: 1.8, dur: 6 }), do: () => {
+            cue = 'prophecy';
+            vanish('hollow');
+          }, wait: 0.3 },
           'fx.13vanish': { shot: null },
           '1.3.33': { do: () => {
             arrivals = rossAndAngus(); // they walk in while the friends talk
@@ -294,6 +307,7 @@ export function createAct1({ director, game, stage, folio, segments, lightning, 
       { actors: actors(), onLine: () => {} },
     );
     folio.finish('1.3');
+    cue = null;
     game.complete('witches');
     step = 'forres';
     arrange();
@@ -397,6 +411,9 @@ export function createAct1({ director, game, stage, folio, segments, lightning, 
     },
     roadBeacon,
     hollowAt: H,
+    get musicCue() {
+      return cue;
+    },
     road: ROAD,
     get step() {
       return step;

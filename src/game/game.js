@@ -11,7 +11,8 @@ import { createMap } from './map.js';
 import { loadGame, saveGame } from './save.js';
 import { makeBlade, makeSpear, makePebble, makeTonic } from '../characters/props.js';
 import { glowTexture } from '../world/textures.js';
-import { sfx } from '../audio.js';
+import { sfx, impact } from '../audio.js';
+import { createCombat } from './combat.js';
 
 const DEG = 180 / Math.PI;
 const bearing = (dx, dz) => ((Math.atan2(dx, -dz) * DEG) + 360) % 360; // 0 = north (-z), 90 = east (+x)
@@ -35,7 +36,7 @@ const SCROLLS = {
   },
 };
 
-export function createGame({ scene, camera, player, macbeth, heightAt, solids, standing, cauldronAt, fireAt, isTouch, folio, settings, isCine = () => false, story = null }) {
+export function createGame({ scene, camera, player, macbeth, heightAt, solids, standing, cauldronAt, fireAt, isTouch, folio, settings, isCine = () => false, story = null, side = null }) {
   const S = {
     health: 100, maxHealth: 100, stamina: 100, maxStamina: 100,
     stones: 0, maxStones: 10, tonics: 0,
@@ -53,6 +54,7 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
   let tasks = [], title = '';
   // the story's own missions (Act I, scene 3 and on), shown above the scroll's tasks
   let storyGroup = null; // { title, tasks: [{ id, text, short }] }
+  const sideGroups = new Map(); // key -> { title, tasks }
   let ravenHeld = false;
   const T = (desk, touch) => (isTouch ? touch : desk);
 
@@ -131,6 +133,7 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
   let spearObj = null;
   const takeSpear = () => {
     S.weapons.spear = true;
+    if (spearObj) spearObj.removeFromParent();
     spearObj = makeSpear();
     macbeth.stow(spearObj, 'back');
   };
@@ -205,7 +208,7 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
       macbeth.sheathed(true);
       macbeth.setIdle('Idle_Loop');
     } else if (prev === 'spear' && spearObj) {
-      macbeth.stow(spearObj, 'back');
+      if (!S.spearOut) macbeth.stow(spearObj, 'back');
       macbeth.hold(null);
     } else macbeth.hold(null);
     S.equipped = k;
@@ -216,11 +219,14 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
       macbeth.setIdle('Sword_Idle');
       if (!quiet) sfx('draw');
       complete('sword');
+      if (!quiet) tip('fight', T('Click to strike (F). Hold the click and let go for a heavy blow (R). Hold the right button to block (V).', 'Tap Strike to swing; hold it and let go for a heavy blow. Hold Block to guard.'));
     } else if (k === 'spear') {
-      macbeth.hold(spearObj, { upright: true });
+      if (!S.spearOut) macbeth.hold(spearObj, { upright: true });
       if (!quiet) sfx('spear');
+      if (!quiet) tip('throw', T('Aim with the view, then click to throw. Fetch the spear back afterwards.', 'Aim with the view, then tap Throw. Fetch the spear back afterwards.'));
     } else if (k === 'stones') {
       if (S.stones > 0) holdStone();
+      if (!quiet && S.stones > 0) tip('throwstone', T('Aim with the view and click to throw a stone.', 'Aim with the view and tap Throw.'));
       else if (!quiet) hud.toast('Your pouch is empty. Gather stones from the heath.', 'warn');
       if (!quiet) sfx('stone');
     } else if (!quiet) sfx(prev === 'sword' ? 'sheathe' : 'fists');
@@ -235,6 +241,55 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
     sfx('drink');
     hud.toast('Warmth runs through you.');
     save();
+  }
+
+  // ---------- fighting: blows, the block, thrown spears and stones (see combat.js)
+  S.spearOut = false;
+  let spearPickup = null;
+  function recoverSpear(t) {
+    if (t) removeThing(t);
+    spearPickup = null;
+    S.spearOut = false;
+    if (S.equipped === 'spear') macbeth.hold(spearObj, { upright: true });
+    else macbeth.stow(spearObj, 'back');
+    sfx('spear');
+  }
+  const combat = createCombat({
+    scene, camera, player, macbeth, heightAt, solids, S, hud, tip, T,
+    getSpear: () => spearObj,
+    addPickup: ({ kind, mesh, label }) => {
+      const pos = mesh.getWorldPosition(new THREE.Vector3());
+      const t = addThing({ id: `thrown-${kind}-${Math.random().toString(36).slice(2, 7)}`, kind: 'thrown', mesh: null, pos, radius: kind === 'spear' ? 1.7 : 1.3, label, glint: kind === 'stone' ? glint(pos) : null });
+      if (kind === 'spear') {
+        spearPickup = t;
+        t.act = () => recoverSpear(t);
+      } else
+        t.act = () => {
+          if (S.stones >= S.maxStones) return hud.toast('Your pouch is full of stones.', 'warn');
+          S.stones++;
+          mesh.removeFromParent();
+          removeThing(t);
+          sfx('pickup');
+          if (S.equipped === 'stones' && S.stones === 1) holdStone();
+        };
+    },
+  });
+  // a blow aimed at Macbeth: turned aside if he blocks facing it, otherwise it lands
+  function hurtFrom({ amount, from }) {
+    const p = player.position, f = macbeth.root.rotation.y;
+    const a = Math.atan2(from.x - p.x, from.z - p.z);
+    // a raised guard covers all but the back
+    const facingIt = Math.abs(Math.atan2(Math.sin(a - f), Math.cos(a - f))) < 2.1;
+    if (combat.blocking && facingIt) {
+      S.stamina = Math.max(0, S.stamina - 10);
+      impact('wood', 1);
+      return true;
+    }
+    hurt(amount);
+    if (!S.dead) macbeth.perform('Hit_Chest', { speed: 0.9 });
+    const back = new THREE.Vector3(p.x - from.x, 0, p.z - from.z).normalize().multiplyScalar(3.5);
+    player.push(back.x, back.z);
+    return false;
   }
 
   // ---------- tasks, set by the raven's scrolls
@@ -265,7 +320,7 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
   function complete(id) {
     if (done[id]) return;
     done[id] = true;
-    const t = tasks.find((x) => x.id === id) || (storyGroup && storyGroup.tasks.find((x) => x.id === id));
+    const t = tasks.find((x) => x.id === id) || (storyGroup && storyGroup.tasks.find((x) => x.id === id)) || [...sideGroups.values()].map((g) => g.tasks.find((x) => x.id === id)).find(Boolean);
     if (t) {
       sfx('objective');
       hud.toast(`Done: ${t.short}`, 'done');
@@ -298,6 +353,11 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
       if (sItems.some((t) => !t.done) || !shown) shown = { title: storyGroup.title, items: sItems };
     }
     if (tasks.length) groups.push({ title, items });
+    for (const g of sideGroups.values()) {
+      const gi = taskItems(g.tasks);
+      groups.push({ title: g.title, items: gi });
+      if (g.focus && gi.some((t) => !t.done)) shown = { title: g.title, items: gi };
+    }
     if (shown) hud.todos(shown.title, shown.items);
     if (folio && groups.length) folio.setTasks(groups, { fresh });
   }
@@ -307,8 +367,15 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
     const add = (list) => {
       for (const t of taskItems(list)) if (!t.done && markers[t.id]) out.push({ ...t, label: list.find((x) => x.id === t.id).text.replace(/ \(.*\)$/, '') });
     };
+    // a side quest shows only its current step on the compass
+    const sideAdd = (g) => {
+      const first = taskItems(g.tasks).find((t) => !t.done && markers[t.id]);
+      if (first) out.push({ ...first, label: g.tasks.find((x) => x.id === first.id).text.replace(/ \(.*\)$/, '') });
+    };
+    for (const g of sideGroups.values()) if (g.focus) sideAdd(g);
     if (storyGroup) add(storyGroup.tasks);
     add(tasks);
+    for (const g of sideGroups.values()) if (!g.focus) sideAdd(g);
     return out;
   }
   const mapMarkers = () => {
@@ -423,6 +490,8 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
     save();
   }
 
+  const crosshair = document.getElementById('crosshair');
+
   // ---------- saving and restoring
   function save() {
     if (!began) return;
@@ -433,6 +502,7 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
       gathered, taken: [...taken], done, received, tips: [...tipsSeen],
       at: { x: +p.x.toFixed(2), z: +p.z.toFixed(2) }, playTime: Math.round(playTime),
       story: story ? story.get() : null,
+      side: side ? side.get() : null,
     });
   }
   function restore(d) {
@@ -461,6 +531,7 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
     }
     if (d.at && Number.isFinite(d.at.x)) player.teleport(d.at.x, d.at.z);
     if (story) story.set(d.story || null);
+    if (side) side.set(d.side || null);
     if (d.equipped && d.equipped !== 'fists') equip(d.equipped, true);
     return true;
   }
@@ -469,7 +540,7 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
 
   // ?debug: let tests take things without walking to them
   if (/[?&]debug/.test(location.search))
-    window.__game = { S, take: (kind) => { const t = things.find((x) => x.kind === kind); if (t) t.act(); }, hurt, equip, drink, done, save, map, things, player, scene };
+    window.__game = { S, take: (kind) => { const t = things.find((x) => x.kind === kind); if (t) t.act(); }, hurt, equip, drink, done, save, map, things, player, scene, macbeth, combat };
 
   return {
     hud,
@@ -488,6 +559,54 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
     },
     get hasCounsel() {
       return !!received.scroll1;
+    },
+    // side quests: their own group of tasks; focus puts them first in the tracker
+    setGroup(key, groupTitle, list, { fresh = true, focus = false } = {}) {
+      if (list) sideGroups.set(key, { title: groupTitle, tasks: list, focus });
+      else sideGroups.delete(key);
+      refreshTasks(fresh);
+    },
+    // a fixed place to use (a rack, a basket): stays after use
+    addSpot({ id, pos, radius = 1.8, label, act }) {
+      const t = addThing({ id, kind: 'spot', mesh: null, pos, radius, label });
+      t.act = () => {
+        act();
+        near = null;
+      };
+      // keep it: re-add after the interaction removed nothing
+      return t;
+    },
+    combat,
+    hurtFrom,
+    // the yard's rack: a practice spear (or your own, fetched back)
+    rackSpear() {
+      if (!S.weapons.spear) takeSpear();
+      else if (S.spearOut) {
+        if (spearPickup) {
+          spearPickup.act = null;
+          removeThing(spearPickup);
+          spearPickup = null;
+        }
+        S.spearOut = false;
+        if (S.equipped === 'spear') macbeth.hold(spearObj, { upright: true });
+        else macbeth.stow(spearObj, 'back');
+      }
+      progress();
+      equip('spear');
+      sfx('spear');
+    },
+    fillPouch() {
+      S.stones = S.maxStones;
+      sfx('stone');
+      if (S.equipped !== 'stones') equip('stones');
+      else holdStone();
+    },
+    giveTonics(n) {
+      S.tonics += n;
+      sfx('drink');
+    },
+    get equipped() {
+      return S.equipped;
     },
     setStoryTasks(groupTitle, list, { fresh = true } = {}) {
       storyGroup = list ? { title: groupTitle, tasks: list } : null;
@@ -517,6 +636,7 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
     // shape this frame's controls: no running when spent, jumping costs breath
     input(inp, dt) {
       if (modal || S.dead || map.isOpen || settings.isOpen || !began || isCine()) {
+        combat.block(false);
         inp.x = inp.y = 0;
         inp.jump = inp.run = false;
         if (map.isOpen || settings.isOpen || isCine()) inp.lookX = inp.lookY = inp.zoom = 0;
@@ -529,6 +649,9 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
         if (S.stamina < 12) inp.jump = false;
         else S.stamina -= 12;
       }
+      combat.block(!!inp.block);
+      if (inp.attack) combat.attack(inp.attack);
+      combat.input(inp);
       return inp;
     },
     update(dt) {
@@ -571,6 +694,10 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
         if (ravenTimer <= 0) sendRaven();
       }
       raven.update(dt);
+      combat.update(dt);
+      const aim = combat.aiming && !modal && !isCine() && !S.dead;
+      player.setAim(aim);
+      if (crosshair) crosshair.hidden = !aim;
       if (began && playTime > 75) tip('settings', 'Narration, voices and the sounds of the world each have their own volume in Settings.');
 
       // nearest thing in reach

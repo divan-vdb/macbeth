@@ -10,7 +10,8 @@ This covers:
 
 - the Old Man's narration and the raven's scrolls;
 - the glossary notes, scene notes and character notes in the Folio;
-- the recorded voices in `assets/voice/`.
+- the recorded voices in `assets/voice/`;
+- the score in `assets/music/`.
 
 You may share and adapt them for any purpose, as long as you credit
 **Divan van den Berg**, link to the licence and say if you changed anything.

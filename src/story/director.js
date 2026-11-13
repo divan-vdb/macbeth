@@ -31,7 +31,8 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
         <button type="button" class="subs-skip">Skip scene &#9656;&#9656;</button>
       </div>
     </div>
-    <div class="chapter" hidden></div>`;
+    <div class="chapter" hidden></div>
+    <div class="curtain left"></div><div class="curtain right"></div><div class="valance"></div>`;
   document.body.appendChild(el);
   const subs = el.querySelector('.subs'), who = el.querySelector('.subs-who'), say = el.querySelector('.subs-say');
   const chapter = el.querySelector('.chapter');
@@ -132,6 +133,7 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
     const length = buf ? buf.duration : ps.reduce((a, p, i) => a + 0.9 + chars[i] * 0.055, 0);
     let ended = false;
     if (buf) {
+      audio.duck(true);
       handle = audio.playBuffer(buf, { ch });
       handle.done.then(() => (ended = true));
     }
@@ -149,6 +151,7 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
     if (buf && !cut && !ended) await Promise.race([handle.done, timer(0.4)]);
     if (handle) handle.stop();
     handle = null;
+    audio.duck(false);
     for (const id of speakers) actors[id] && actors[id].talk && actors[id].talk(false);
     if (s.aside) moodTarget = 0;
     // a short breath between speakers; the sisters leave longer silences between them
@@ -244,13 +247,24 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
     }
   }
 
-  // ---------- chapter cards: "Act I · Scene III — A heath near Forres"
+  // ---------- chapter cards: "Act I · Scene III — A heath near Forres". A new scene opens
+  // as in a theatre: the curtains swing shut, the title is announced, and they part.
   async function card(top, title, sub, secs = 3.6) {
+    const scene = /Scene/.test(top);
+    if (scene) {
+      el.classList.add('curtains-shut');
+      await timer(0.55);
+      audio.sfx('curtain');
+    }
     chapter.innerHTML = `<div class="ch-top">${top}</div><div class="ch-title">${title}</div>${sub ? `<div class="ch-sub">${sub}</div>` : ''}`;
     chapter.hidden = false;
     chapter.classList.remove('show');
     void chapter.offsetWidth;
     chapter.classList.add('show');
+    if (scene) {
+      await timer(0.9);
+      el.classList.remove('curtains-shut');
+    }
     await timer(secs);
     chapter.classList.remove('show');
     await timer(0.7);
@@ -269,7 +283,14 @@ export function createDirector({ scene, camera, heightAt, folio, hud, segments, 
     get running() {
       return running;
     },
+    get skipping() {
+      return skipping;
+    },
     has: (key) => !!seg[key],
+    // more lines from another bank (the yard's Captain, later acts)
+    addLines(part, list) {
+      for (const s of list || []) (seg[s.key] = s), (partOf[s.key] = part);
+    },
     wait: timer,
     // warm up a part's voices before they are needed
     preload(part) {

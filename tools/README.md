@@ -25,3 +25,7 @@ web models in assets/models.
 - `voice/act1.py <play.json> <game folder>`: records Act I's lines with the Kokoro speech model, aged and shaped with the WORLD vocoder (`voice/vox.py`),
   one voice blend and audio treatment per character, and writes `assets/voice/act1_*.json` and
   `assets/text/act1.json` (what the story director plays).
+- `voice/captain.py <game folder>`: records the Captain's lessons for the training yard (`assets/voice/yard.json`).
+- `voice/compose.py <game folder>`: composes the score as MIDI (Scottish modes, fiddle, pipes and drums,
+  choir, strings) and renders each cue with FluidSynth and the FluidR3 GM sound font into `assets/music/`.
+  Needs: apt install fluidsynth fluid-soundfont-gm; pip install mido.

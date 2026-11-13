@@ -61,6 +61,10 @@ export const CHARACTERS = {
     mono: ['S', '#6e2a1c'], name: 'The Sergeant', role: 'A wounded soldier', about: 'Carried bleeding from the field, he gives the king the first account of Macbeth in battle: brave, and terrifying.',
   },
   'Lady Macbeth': { mono: ['L', '#6a0e13'], name: 'Lady Macbeth', role: 'Macbeth’s wife', about: 'Waiting at Inverness. You will meet her soon.' },
+  'The Captain': {
+    mono: ['C', '#4a4128'], name: 'The Captain', role: 'Master of the training yard (not in the play)',
+    about: 'An old soldier who has drilled the king’s men for thirty years. He served under Macbeth’s father, and still calls him “my lord” as if he were a boy.',
+  },
   'The Old Man': {
     mono: ['✶', '#3b2a1a'], name: 'The Old Man', role: 'Your narrator',
     about: 'He saw it all, and has never stopped telling it. In the play he appears once, in Act II, to speak of a night of unnatural things. Here he sits by the fire and tells you the rest.',

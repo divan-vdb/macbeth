@@ -23,6 +23,8 @@ import { buildBlastedHeath, createMist } from './world/blasted.js';
 import { createDirector } from './story/director.js';
 import { createStage } from './story/stage.js';
 import { createAct1 } from './story/act1.js';
+import { buildYard } from './world/yard.js';
+import { createYardQuest } from './story/yardquest.js';
 
 const $ = (id) => document.getElementById(id);
 const diag = { renderer: $('d-renderer'), physics: $('d-physics'), fps: $('d-fps'), bodies: $('d-bodies'), screen: $('d-screen'), quality: $('d-quality'), error: $('d-error') };
@@ -46,10 +48,10 @@ if (isTouch) document.body.classList.add('touch');
 
 async function main() {
   // The Folio (the play, the tasks, the scrolls) and the settings
-  let game = null;
   // the play's text, for the Folio and the story's subtitles
+  audio.setMusicBase(new URL('../assets/music/', import.meta.url).href);
   const loadJSON = (path) => fetch(new URL(path, import.meta.url)).then((r) => (r.ok ? r.json() : null)).catch(() => null);
-  const [play, act1Lines] = await Promise.all([loadJSON('../assets/text/play.json'), loadJSON('../assets/text/act1.json')]);
+  const [play, act1Lines, yardLines] = await Promise.all([loadJSON('../assets/text/play.json'), loadJSON('../assets/text/act1.json'), loadJSON('../assets/text/yard.json')]);
   if (!play) showError('The play text could not be loaded');
   const folioApi = mountFolio($('folio'), {
     play,
@@ -124,7 +126,19 @@ async function main() {
   const hollow = buildBlastedHeath(hollowSpot, heightAt, new THREE.Vector3(0, 0, 0));
   scene.add(hollow.group);
   const mist = createMist(scene, heightAt);
-  const grass = buildGrass([...stones.solids, ...pit.solids, ...hollow.solids], narrow);
+  // the Captain's training yard, west of the stones on a level stretch of heath. Its targets
+  // join the fighting once the game exists (they wait in a queue until then).
+  let game = null, yardQuest = null, player = null;
+  const yardTargets = [];
+  const yardCentre = new THREE.Vector3(-20, 0, 6);
+  const yard = buildYard({
+    scene, heightAt, narrow, center: yardCentre,
+    combat: { addTarget: (t) => (yardTargets.push(t), t) },
+    onEvent: (type, d) => yardQuest && yardQuest.onEvent(type, d),
+    hurtPlayer: (h) => (game ? game.hurtFrom(h) : false),
+    player: { get position() { return player ? player.position : new THREE.Vector3(0, -99, 0); } },
+  });
+  const grass = buildGrass([...stones.solids, ...pit.solids, ...hollow.solids, ...yard.solids, { kind: 'ball', size: [9.5], position: yardCentre, quaternion: new THREE.Quaternion() }], narrow);
   scene.add(grass.mesh);
   const fire = createFire(new THREE.Vector3(0, pit.y0, 0), narrow);
   scene.add(fire.group);
@@ -140,7 +154,7 @@ async function main() {
     world.timestep = 1 / 60;
     const tg = terrain.geometry;
     world.createCollider(RAPIER.ColliderDesc.trimesh(new Float32Array(tg.attributes.position.array), new Uint32Array(tg.index.array)));
-    for (const s of [...stones.solids, ...pit.solids, ...hollow.solids]) {
+    for (const s of [...stones.solids, ...pit.solids, ...hollow.solids, ...yard.colliders]) {
       const d = s.kind === 'box' ? RAPIER.ColliderDesc.cuboid(...s.size) : RAPIER.ColliderDesc.ball(s.size[0]);
       d.setTranslation(s.position.x, s.position.y, s.position.z);
       d.setRotation({ x: s.quaternion.x, y: s.quaternion.y, z: s.quaternion.z, w: s.quaternion.w });
@@ -156,7 +170,6 @@ async function main() {
 
   // Macbeth, standing outside the stone circle, facing the fire
   const input = createInput(renderer.domElement, { stickZone: $('stick-zone'), stickBase: $('stick-base'), stickKnob: $('stick-knob'), jumpBtn: $('btn-jump') });
-  let player = null;
   let cauldron = null, stage = null, loadActor = null, act1 = null;
   let macbethChar = null;
   if (world) {
@@ -187,7 +200,7 @@ async function main() {
 
     // Banquo waits by the fire; the Weird Sisters stand round their cauldron inside
     // the stone circle, on the far side of the fire. Lady Macbeth waits at Inverness (scene 5).
-    const solids = [...stones.solids, ...pit.solids, ...hollow.solids];
+    const solids = [...stones.solids, ...pit.solids, ...hollow.solids, ...yard.solids];
     const clearSpot = (angle, r, margin = 0.55) => {
       for (let step = 0; step < 60; step++) {
         const a = angle + (step % 2 ? 1 : -1) * Math.ceil(step / 2) * 0.05;
@@ -251,7 +264,9 @@ async function main() {
         folio: folioApi, settings,
         isCine: () => !!(director && director.cine),
         story: { get: () => (act1 ? act1.get() : null), set: (v) => act1 && act1.set(v) },
+        side: { get: () => (yardQuest ? yardQuest.get() : null), set: (v) => yardQuest && yardQuest.set(v) },
       });
+      for (const t of yardTargets) game.combat.addTarget(t);
       // the play, staged: lines, cameras, the Folio writing itself
       director = createDirector({ onPause: () => setPaused(true), scene, camera, heightAt, folio: folioApi, hud: game.hud, segments: act1Lines || {}, voiceBase: new URL('../assets/voice/', import.meta.url).href });
       act1 = createAct1({
@@ -259,7 +274,9 @@ async function main() {
         cauldronAt: cauldron.group.position, fireAt: new THREE.Vector3(0, 0, 0), player, macbeth: macbethChar, heightAt, camera, loadActor,
       });
       scene.add(act1.roadBeacon.group);
-      if (/[?&]debug/.test(location.search)) window.__story = { act1, director, stage, folio: folioApi };
+      director.addLines('yard', yardLines && yardLines.yard);
+      yardQuest = createYardQuest({ game, director, yard, stage, player, loadActor, isTouch });
+      if (/[?&]debug/.test(location.search)) window.__story = { act1, director, stage, folio: folioApi, yard };
     } catch (err) {
       showError('Game: ' + (err && err.message ? err.message : err));
     }
@@ -325,6 +342,7 @@ async function main() {
     setFolio(!narrow && settings.values.mode === 'learn');
     if (game) game.begin(choice === 'continue');
     if (act1) act1.begin(choice !== 'continue');
+    if (yardQuest) yardQuest.begin();
   };
   if (game) showTitle({ hasSave: !!loadGame(), onChoose: begin });
 
@@ -422,6 +440,21 @@ async function main() {
     audio.setMuted(!audio.isMuted());
     refreshSound();
   });
+  // phones: Strike (tap; hold and let go for a heavy blow) and Block (hold)
+  {
+    const strike = $('btn-strike'), blockBtn = $('btn-block');
+    let t0 = 0;
+    strike.addEventListener('pointerdown', (e) => {
+      t0 = performance.now();
+      e.preventDefault();
+    });
+    strike.addEventListener('pointerup', () => input.strike(performance.now() - t0 > 380 ? 'heavy' : 'light'));
+    blockBtn.addEventListener('pointerdown', (e) => {
+      input.holdBlock(true);
+      e.preventDefault();
+    });
+    for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) blockBtn.addEventListener(ev, () => input.holdBlock(false));
+  }
   // let Space jump rather than re-press the last button clicked
   document.querySelectorAll('.controls button').forEach((b) => b.addEventListener('click', () => b.blur()));
 
@@ -437,6 +470,7 @@ async function main() {
   // Main loop
   const fireDir = new THREE.Vector3(), fireFwd = new THREE.Vector3(), fireRight = new THREE.Vector3();
   const hemiBase = hemi.intensity;
+  let fightLabel = '';
   let last = performance.now(), acc = 0, frames = 0, fpsTime = 0, wind = 0.2, fps = 60;
   renderer.setAnimationLoop(() => {
     const now = performance.now();
@@ -483,7 +517,15 @@ async function main() {
     // the rest of the cast (characters far from the camera skip their cloth simulation)
     if (stage) stage.update(dt, wind, camera);
     if (act1) act1.update(dt);
+    yard.update(dt, camera);
+    if (yardQuest) yardQuest.update(dt);
+    // the score follows the story: its scenes first, then the yard's march, else the heath
+    if (game && game.began) audio.setMusic((act1 && act1.musicCue) || (yardQuest && yardQuest.inYard ? 'yard' : 'heath'));
     if (director) director.update(dt, real);
+    if (game && isTouch) {
+      const lbl = game.combat.aiming ? 'Throw' : 'Strike';
+      if (fightLabel !== lbl) $('btn-strike').textContent = fightLabel = lbl;
+    }
     if (cauldron) cauldron.update(dt, camera);
 
     // keep the moon's shadow centred on Macbeth

@@ -23,22 +23,34 @@ The game was brought to life through a collective approach, bringing together co
 - **Read it.** The Folio holds the whole play, all five acts.
   - Lines are pale until they are spoken in the game; then the Folio writes them in.
   - Tap a portrait to learn about a character, or an underlined word for a glossary note in plain English. Each scene has a short guide.
+- **Train in the Captain's yard.** A gruff old soldier drills you, step by voiced step:
+  - sword blows on straw scarecrows, a carved wooden man, a stick figure and a pell;
+  - a heavy blow;
+  - blocking the swinging sandbag of a quintain;
+  - casting spears from the line into straw butts;
+  - smashing clay pots with stones.
+
+  Every target rocks, sheds straw or wood chips, and sounds true to what it is made of. Thrown spears stick where they land and can be pulled out again.
+- **Feel the theatre.** Each scene opens with velvet curtains and its title. An original score follows the story: a fiddle lament for the heath, an eerie choir for the witches, harp and cello for the Old Man's hearth, pipes and drums for the yard, and rising horns for the prophecy. The music dips whenever someone speaks.
 - **Play it.** Ravens bring scrolls with tasks and tips.
   - Gather stones, take up a spear, find a healer's tonic and ready your sword.
   - Follow the compass and the parchment map to glowing points of interest.
   - Your progress saves in the browser.
 - **Choose how you play:** *Play and learn the play* keeps the Folio beside you; *Just play* keeps the text in the background.
 
-More is on the way: fist fights, sword training, the boar hunt, Forres and Inverness, and the rest of the play, act by act.
+More is on the way: riding (mount a horse, ride through the posts), fist fights with passers-by, the boar hunt, Forres and Inverness, and the rest of the play, act by act.
 
 ## Controls
 
 - **Computer:**
   - WASD to walk, Shift to run, Space to jump; drag to look, scroll to zoom
   - E to take or read, 1–4 for weapons, Q to drink a tonic, M for the map
+  - Click to strike (F); hold the click and let go for a heavy blow (R); hold the right button to block (V)
+  - With a spear or stones ready, aim with the view and click to throw
   - P (or the pause button) pauses at any moment; in a scene, Esc pauses too
   - In a scene, Space or Enter skips to the next line
-- **Phone:** left thumb to walk (push further to run), drag to look, pinch to zoom, and tap the on-screen buttons (the pause button is at the top).
+- **Phone:** left thumb to walk (push further to run), drag to look, pinch to zoom. Tap Strike to swing (hold it for a heavy blow, or to throw), and hold Block to guard. The pause button is at the top.
+- **Gamepad:** X strikes, Y is the heavy blow, LB or LT blocks.
 
 ## Run it on your own computer
 
@@ -55,6 +67,7 @@ Then open http://localhost:8080. You'll need an internet connection, because the
 - Rendering: [three.js](https://threejs.org) `WebGPURenderer`, with an automatic WebGL 2 fallback.
 - Physics: [Rapier](https://rapier.rs), in WebAssembly.
 - Sound effects, wind, fire and thunder are synthesised live with the Web Audio API.
+- The score is composed as MIDI in Python and played with FluidSynth through the FluidR3 GM sound font (MIT).
 - Characters are built from Quaternius's CC0 modular characters, re-coloured and costumed in code. Cloaks and gowns are simulated cloth.
 - Voices are recorded with the open [Kokoro](https://github.com/thewh1teagle/kokoro-onnx) speech model (Apache 2.0). Each character has its own blend of voices, then is aged and shaped with the [WORLD](https://github.com/JeremyCCHsu/Python-Wrapper-for-World-Vocoder) vocoder: the witches' rasp, croak and tremor, the Old Man's breath and waver.
 - Models and voices are stored as base64 inside `.json` files, so they load from any static host.
@@ -65,11 +78,12 @@ src/main.js              start-up, world, physics, the game loop
 src/story/               the story director (lines, cameras, subtitles), the stage (the cast), Act I
 src/folio/               the Folio: the play, glossary, scene notes, the cast
 src/game/                health, arsenal, tasks, raven and scrolls, map, settings, saving
-src/world/               terrain, stones, fire, sky, lightning, the blasted hollow, mist
+src/world/               terrain, stones, fire, sky, lightning, the blasted hollow, mist, the training yard
 src/characters/          character building, cloth, props
 src/player/              the player controller, camera and controls
 assets/text/play.json    the full text of the play
 assets/voice/            the recorded lines
+assets/music/            the score, one file a cue
 assets/models/           the character models and animations
 tools/                   scripts that build the models, voices and text
 ```

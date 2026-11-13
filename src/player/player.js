@@ -26,7 +26,7 @@ export function createPlayer({ RAPIER, world, scene, camera, avatar, start, heig
   const tmp = new THREE.Vector3();
 
   // camera rig
-  const cam = { yaw: Math.PI, pitch: 0.28, dist: camDist, curDist: camDist, target: new THREE.Vector3() };
+  const cam = { yaw: Math.PI, pitch: 0.28, dist: camDist, curDist: camDist, target: new THREE.Vector3(), side: 0, aim: false };
   const ray = new RAPIER.Ray({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 1 });
 
   let next = { x: start.x, y: start.y + HALF + RADIUS, z: start.z };
@@ -90,13 +90,17 @@ export function createPlayer({ RAPIER, world, scene, camera, avatar, start, heig
 
   function updateCamera(dt) {
     const p = avatar.root.position;
-    cam.target.lerp(tmp.set(p.x, p.y + 1.55, p.z), Math.min(1, dt * 12));
+    // aiming a throw: the view moves over Macbeth's right shoulder so the middle of the screen is clear
+    cam.side += ((cam.aim ? 0.62 : 0) - cam.side) * Math.min(1, dt * 6);
+    const rx = Math.cos(cam.yaw), rz = -Math.sin(cam.yaw);
+    cam.target.lerp(tmp.set(p.x + rx * cam.side, p.y + 1.55 + cam.side * 0.12, p.z + rz * cam.side), Math.min(1, dt * 12));
     const dir = new THREE.Vector3(Math.sin(cam.yaw) * Math.cos(cam.pitch), Math.sin(cam.pitch), Math.cos(cam.yaw) * Math.cos(cam.pitch));
     // pull in if a stone or crate is between the head and the camera
     ray.origin = { x: cam.target.x, y: cam.target.y, z: cam.target.z };
     ray.dir = { x: dir.x, y: dir.y, z: dir.z };
     const hit = world.castRay(ray, cam.dist, true, undefined, undefined, collider);
-    const want = hit ? Math.max(0.6, hit.timeOfImpact - 0.25) : cam.dist;
+    const far = cam.aim ? Math.min(cam.dist, 3.4) : cam.dist;
+    const want = hit ? Math.max(0.6, Math.min(far, hit.timeOfImpact - 0.25)) : far;
     cam.curDist += (want - cam.curDist) * Math.min(1, dt * (want < cam.curDist ? 20 : 4));
     camera.position.copy(cam.target).addScaledVector(dir, cam.curDist);
     const ground = heightAt(camera.position.x, camera.position.z) + 0.35;
@@ -127,6 +131,18 @@ export function createPlayer({ RAPIER, world, scene, camera, avatar, start, heig
     },
     get yaw() {
       return cam.yaw;
+    },
+    // turn Macbeth (not the view) to a heading, as when he squares up to a target
+    setFacing(yaw) {
+      facing = yaw;
+    },
+    setAim(on) {
+      cam.aim = on;
+    },
+    // a shove (a blow that lands): carried by the controller, dying away quickly
+    push(x, z) {
+      vel.x += x;
+      vel.z += z;
     },
     faceTowards(x, z) {
       cam.yaw = Math.atan2(avatar.root.position.x - x, avatar.root.position.z - z);

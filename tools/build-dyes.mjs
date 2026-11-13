@@ -54,6 +54,11 @@ const DYES = {
     { hue: [10, 50], minSat: 0.2, to: { s: 0.9, v: 0.7 } },
   ],
   // Angus: an older lord in charcoal and silver-grey
+  // the Captain: an old soldier in worn leather and dull olive wool
+  dye_captain: [
+    { hue: GREEN, minSat: 0.18, to: { h: 62, s: 0.42, v: 0.5 } },
+    { hue: [10, 50], minSat: 0.2, to: { s: 0.75, v: 0.55 } },
+  ],
   dye_angus: [
     { hue: GREEN, minSat: 0.18, to: { h: 220, sSet: 0.1, v: 0.62 } },
     { hue: [10, 50], minSat: 0.2, to: { s: 0.45, v: 0.48 } },

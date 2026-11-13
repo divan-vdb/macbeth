@@ -27,8 +27,10 @@ interactive online game.
 | Rapier (physics) | Dimforge | Apache 2.0 |
 | Kokoro-82M speech model, kokoro-onnx (voices) | hexgrad; thewh1teagle | Apache 2.0; MIT |
 | WORLD vocoder, pyworld (voice ageing and shaping) | Masanori Morise; Jeremy Hsu | BSD; MIT |
+| FluidR3 GM sound font (the instruments of the score) | Frank Wen and contributors | MIT |
+| FluidSynth (renders the score; a tool, not shipped) | the FluidSynth project | LGPL 2.1 |
 | Cinzel and IM Fell English fonts (via Google Fonts) | Natanael Gama; Igino Marini | SIL Open Font Licence 1.1 |
 | jsDelivr CDN | jsDelivr | free public CDN |
 
-All other textures, sounds, the sky, fire, lightning, mist and terrain are made in
-code for this game.
+The score was composed for this game. All other textures, sounds, the sky, fire,
+lightning, mist, terrain and the training yard are made in code for this game.

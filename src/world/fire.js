@@ -50,9 +50,11 @@ const HOT = new THREE.Color(1.0, 0.86, 0.55);
 const MID = new THREE.Color(1.0, 0.45, 0.1);
 const COOL = new THREE.Color(0.45, 0.06, 0.0);
 
-export function createFire(origin, narrow) {
+// opts: scale (a brazier is about 0.45), power (light strength), light (false: flames only), shadows
+export function createFire(origin, narrow, { scale = 1, power = 1, light: withLight = true, shadows = true } = {}) {
   const group = new THREE.Group();
   group.position.copy(origin);
+  group.scale.setScalar(scale);
 
   const flames = new Particles(
     narrow ? 60 : 90,
@@ -134,13 +136,13 @@ export function createFire(origin, narrow) {
   // The fire's light: flickers and shifts so shadows move
   const light = new THREE.PointLight(new THREE.Color().setStyle('#ff8a3a', THREE.SRGBColorSpace), 55, 45, 2);
   light.position.set(0, 0.9, 0);
-  if (!narrow) {
+  if (!narrow && shadows) {
     light.castShadow = true;
     light.shadow.mapSize.set(512, 512);
     light.shadow.bias = -0.002;
     light.shadow.camera.near = 0.3;
   }
-  group.add(light);
+  if (withLight) group.add(light);
 
   let t = 0;
   const update = (dt, camera) => {
@@ -149,7 +151,7 @@ export function createFire(origin, narrow) {
     sparks.update(dt, camera, t);
     smoke.update(dt, camera, t);
     const flick = 0.78 + Math.sin(t * 11.3) * 0.07 + Math.sin(t * 6.1 + 1.3) * 0.09 + Math.sin(t * 23.7) * 0.04 + Math.random() * 0.08;
-    light.intensity = 58 * flick;
+    light.intensity = 58 * flick * power;
     light.position.set(Math.sin(t * 5.3) * 0.08, 0.85 + Math.sin(t * 7.9) * 0.06, Math.cos(t * 4.1) * 0.08);
   };
   return { group, update, light };

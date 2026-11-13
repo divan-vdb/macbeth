@@ -1,0 +1,76 @@
+{
+"yard": [
+{
+"key": "cap.greet",
+"who": "The Captain",
+"lines": [
+"So. The Thane of Glamis comes to my yard. A fine general you may be, my lord, but steel forgets its master quick. Humour an old soldier. Draw your sword, and show me what you can do to a man of straw."
+],
+"dur": 13.08
+},
+{
+"key": "cap.light",
+"who": "The Captain",
+"lines": [
+"Not bad. Not bad at all. Now put your weight behind it. A heavy blow, on the wooden man or the pell. Hold the stroke back, then let it go."
+],
+"dur": 8.43
+},
+{
+"key": "cap.heavy",
+"who": "The Captain",
+"lines": [
+"That's the arm I remember from the field. Now the quintain. Strike its shield, and when the sandbag comes round at you, raise your blade and take it."
+],
+"dur": 8.89
+},
+{
+"key": "cap.bag",
+"who": "The Captain",
+"lines": [
+"Ha! Block it, my lord, or step aside. The bag forgives. A Norway axe won't."
+],
+"dur": 4.89
+},
+{
+"key": "cap.block",
+"who": "The Captain",
+"lines": [
+"Good. You'll live another day. The spear, now. Take one from the rack, stand behind the rope, and put it in the straw."
+],
+"dur": 6.29
+},
+{
+"key": "cap.gold",
+"who": "The Captain",
+"lines": [
+"Right in the gold! I'd not like to be the boar that meets that."
+],
+"dur": 3.43
+},
+{
+"key": "cap.spear",
+"who": "The Captain",
+"lines": [
+"A boar won't stand still while you take your aim, but that'll do. Last of all, stones. Fill your pouch from the basket, and break me three of those pots."
+],
+"dur": 8.9
+},
+{
+"key": "cap.done",
+"who": "The Captain",
+"lines": [
+"There's nothing more this old man can teach you. Take these for your trouble. Go on, my lord, the heath is waiting. And mind... a good soldier keeps his sword for his enemies."
+],
+"dur": 10.43
+},
+{
+"key": "cap.again",
+"who": "The Captain",
+"lines": [
+"Back again, my lord? The straw men are always ready for you."
+],
+"dur": 3.61
+}
+]
+}

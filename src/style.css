@@ -761,3 +761,51 @@ body.paused .story .subs-btns, body.paused .story .letterbox { pointer-events: n
 .story .subs.fx { background: transparent; border-color: transparent; box-shadow: none; }
 .story .subs.fx .subs-say { font-style: italic; color: rgba(241, 230, 204, 0.85); text-shadow: 0 1px 6px #000; }
 .story .subs.fx .subs-btns { display: none; }
+
+/* Fighting: the aiming mark, and the phone's Strike and Block buttons */
+.crosshair { position: fixed; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; pointer-events: none; z-index: 4; }
+.crosshair[hidden] { display: none; }
+.crosshair::before, .crosshair::after { content: ''; position: absolute; background: rgba(243, 227, 189, .85); box-shadow: 0 0 3px #000; }
+.crosshair::before { left: 10px; top: 0; width: 2px; height: 22px; }
+.crosshair::after { top: 10px; left: 0; height: 2px; width: 22px; }
+.fight-btns { display: none; }
+body.touch .fight-btns { display: block; }
+body.touch .fight-btns button {
+  position: fixed; z-index: 4; border-radius: 50%; font-family: 'Cinzel', serif; font-weight: 700; letter-spacing: .04em;
+  color: #f3e3bd; background: radial-gradient(circle at 40% 35%, rgba(110, 40, 22, .85), rgba(40, 14, 8, .85));
+  border: 1.5px solid rgba(232, 198, 106, .75); box-shadow: 0 4px 14px rgba(0,0,0,.5); touch-action: none;
+}
+body.touch #btn-strike { right: calc(112px + var(--safe-r)); bottom: calc(26px + var(--safe-b)); width: 84px; height: 84px; font-size: 13px; }
+body.touch #btn-block { right: calc(30px + var(--safe-r)); bottom: calc(124px + var(--safe-b)); width: 62px; height: 62px; font-size: 11px; background: radial-gradient(circle at 40% 35%, rgba(60, 70, 90, .85), rgba(18, 22, 32, .85)); }
+body.touch #btn-strike:active, body.touch #btn-block:active { transform: scale(.94); }
+body.cine .fight-btns, body.paused .fight-btns { opacity: 0; pointer-events: none; }
+
+/* The theatre: velvet curtains that close and part on each new scene */
+.story .curtain {
+  position: absolute; top: 0; bottom: 0; width: 52vw; z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.35), transparent 18%, transparent 80%, rgba(0,0,0,.55)),
+    repeating-linear-gradient(90deg, #3a0507 0, #6e0f12 1.6vw, #8c1a1c 2.4vw, #5a0a0d 3.4vw, #2c0405 4.6vw);
+  box-shadow: inset 0 0 60px rgba(0,0,0,.6);
+  transition: transform 1.5s cubic-bezier(.6, .05, .3, 1);
+}
+.story .curtain.left { left: 0; transform: translateX(-102%); border-right: 2px solid #2a0304; }
+.story .curtain.right { right: 0; transform: translateX(102%); border-left: 2px solid #2a0304; }
+.story .valance {
+  position: absolute; left: 0; right: 0; top: 0; height: 7vh; z-index: 2; transform: translateY(-110%);
+  background: repeating-radial-gradient(ellipse at 50% -40%, #7a1214 0 2vw, #4a0709 2vw 3vw);
+  border-bottom: 3px solid #b8892e; box-shadow: 0 4px 12px rgba(0,0,0,.6); transition: transform 1s ease;
+}
+.story.curtains-shut .curtain { transform: none; transition-duration: .55s; }
+.story.curtains-shut .valance { transform: none; }
+.story .chapter { z-index: 3; }
+/* phones: the tracker shows only what to do now; the fight buttons sit above Jump */
+body.touch .hud-tracker li:not(.active) { display: none; }
+body.touch .hud-tracker { width: 220px; top: calc(92px + var(--safe-t)); }
+body.touch #btn-strike { right: calc(18px + var(--safe-r)); bottom: calc(122px + var(--safe-b)); }
+body.touch #btn-block { right: calc(112px + var(--safe-r)); bottom: calc(134px + var(--safe-b)); }
+@media (max-height: 480px) {
+  .story .subs { padding: 7px 12px 6px; }
+  .story .subs-say { font-size: 15px; }
+  body.touch:not(.cine) .story .subs { bottom: calc(70px + var(--safe-b, 0px)); left: 40%; width: min(520px, 62vw); }
+}

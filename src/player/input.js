@@ -9,6 +9,9 @@ export function createInput(canvas, ui) {
   const keys = new Set();
   const look = { dx: 0, dy: 0 };
   let zoom = 0, jumpQueued = false;
+  // fighting: a click strikes, a held press is a heavy blow, the right button blocks
+  let attackQueued = null, blockHeld = false, padAtk = { x: false, y: false };
+  const press = { id: null, t: 0, x: 0, y: 0, moved: false };
   const stick = { x: 0, y: 0, id: null, ox: 0, oy: 0 };
 
   const typing = (e) => e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA');
@@ -19,6 +22,8 @@ export function createInput(canvas, ui) {
       jumpQueued = true;
       e.preventDefault();
     }
+    if (!e.repeat && e.code === 'KeyF') attackQueued = 'light';
+    if (!e.repeat && e.code === 'KeyR') attackQueued = 'heavy';
   });
   window.addEventListener('keyup', (e) => keys.delete(e.code));
   window.addEventListener('blur', () => keys.clear());
@@ -29,7 +34,12 @@ export function createInput(canvas, ui) {
   canvas.addEventListener('pointerdown', (e) => {
     canvas.setPointerCapture(e.pointerId);
     drags.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (e.pointerType === 'mouse') {
+      if (e.button === 2) blockHeld = true;
+      if (e.button === 0) Object.assign(press, { id: e.pointerId, t: performance.now(), x: e.clientX, y: e.clientY, moved: false });
+    }
   });
+  canvas.addEventListener('contextmenu', (e) => e.preventDefault());
   canvas.addEventListener('pointermove', (e) => {
     const d = drags.get(e.pointerId);
     if (!d) return;
@@ -44,6 +54,7 @@ export function createInput(canvas, ui) {
       pinch = dist2;
       return;
     }
+    if (e.pointerId === press.id && Math.hypot(e.clientX - press.x, e.clientY - press.y) > 7) press.moved = true;
     look.dx += e.clientX - d.x;
     look.dy += e.clientY - d.y;
     d.x = e.clientX;
@@ -52,6 +63,12 @@ export function createInput(canvas, ui) {
   const end = (e) => {
     drags.delete(e.pointerId);
     if (drags.size < 2) pinch = null;
+    if (e.pointerType === 'mouse' && e.button === 2) blockHeld = false;
+    if (e.pointerId === press.id) {
+      // a click (not a drag to look) strikes; held for a moment, it is a heavy blow
+      if (!press.moved && e.type === 'pointerup') attackQueued = performance.now() - press.t > 380 ? 'heavy' : 'light';
+      press.id = null;
+    }
   };
   canvas.addEventListener('pointerup', end);
   canvas.addEventListener('pointercancel', end);
@@ -115,6 +132,7 @@ export function createInput(canvas, ui) {
   return {
     read(dt) {
       let x = 0, y = 0, run = keys.has('ShiftLeft') || keys.has('ShiftRight');
+      let block = blockHeld || keys.has('KeyV');
       if (keys.has('KeyW') || keys.has('ArrowUp')) y += 1;
       if (keys.has('KeyS') || keys.has('ArrowDown')) y -= 1;
       if (keys.has('KeyD') || keys.has('ArrowRight')) x += 1;
@@ -138,17 +156,30 @@ export function createInput(canvas, ui) {
         const a = gp.buttons[0] && gp.buttons[0].pressed;
         if (a && !padJumpHeld) jumpQueued = true;
         padJumpHeld = a;
+        const bx = gp.buttons[2] && gp.buttons[2].pressed, by = gp.buttons[3] && gp.buttons[3].pressed;
+        if (bx && !padAtk.x) attackQueued = 'light';
+        if (by && !padAtk.y) attackQueued = 'heavy';
+        padAtk = { x: bx, y: by };
+        if ((gp.buttons[4] && gp.buttons[4].pressed) || (gp.buttons[6] && gp.buttons[6].value > 0.4)) block = true;
       }
       const len = Math.hypot(x, y);
       if (len > 1) {
         x /= len;
         y /= len;
       }
-      const out = { x, y, run, jump: jumpQueued, lookX: lx, lookY: ly, zoom };
+      const out = { x, y, run, jump: jumpQueued, lookX: lx, lookY: ly, zoom, attack: attackQueued, block };
       look.dx = look.dy = 0;
       zoom = 0;
       jumpQueued = false;
+      attackQueued = null;
       return out;
+    },
+    // on-screen buttons (phones): strike, heavy blow, and the block held down
+    strike(kind = 'light') {
+      attackQueued = kind;
+    },
+    holdBlock(on) {
+      blockHeld = on;
     },
   };
 }

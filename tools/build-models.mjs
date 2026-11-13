@@ -184,5 +184,7 @@ for (const h of ['Hair_Beard', 'Hair_SimpleParted', 'Hair_Long', 'Hair_Buns', 'E
  await convert(`hair/${h}.gltf`, `${h.toLowerCase()}.glb`);
 }
 }
-await clips('anims/UAL1_Standard.glb', 'anims_ual1.glb', ['Idle_Loop', 'Walk_Loop', 'Jog_Fwd_Loop', 'Jump_Start', 'Jump_Loop', 'Jump_Land', 'Idle_Talking_Loop', 'Walk_Formal_Loop', 'Sword_Idle', 'Spell_Simple_Idle_Loop', 'Idle_Torch_Loop']);
-await clips('anims/UAL2_Standard.glb', 'anims_ual2.glb', ['Idle_FoldArms_Loop', 'Idle_Lantern_Loop', 'Zombie_Idle_Loop']);
+await clips('anims/UAL1_Standard.glb', 'anims_ual1.glb', ['Idle_Loop', 'Walk_Loop', 'Jog_Fwd_Loop', 'Jump_Start', 'Jump_Loop', 'Jump_Land', 'Idle_Talking_Loop', 'Walk_Formal_Loop', 'Sword_Idle', 'Spell_Simple_Idle_Loop', 'Idle_Torch_Loop',
+  'Sword_Attack', 'Punch_Jab', 'Punch_Cross', 'Hit_Chest', 'Hit_Head', 'Roll', 'Death01', 'Sitting_Idle_Loop', 'Interact', 'PickUp_Table']);
+await clips('anims/UAL2_Standard.glb', 'anims_ual2.glb', ['Idle_FoldArms_Loop', 'Idle_Lantern_Loop', 'Zombie_Idle_Loop',
+  'Sword_Regular_A', 'Sword_Regular_B', 'Sword_Regular_C', 'Sword_Heavy_Combo', 'Sword_Block', 'Idle_Shield_Loop', 'OverhandThrow', 'Melee_Hook', 'Hit_Knockback', 'Yes', 'Idle_No_Loop']);
