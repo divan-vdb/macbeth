@@ -55,6 +55,8 @@ const load = (name) => {
   if (!cache.has(name)) cache.set(name, fetchModel(name));
   return cache.get(name);
 };
+// other models (the animals) come through the same loader
+export const loadModel = load;
 const srgb = (hex) => new THREE.Color().setStyle(hex, THREE.SRGBColorSpace);
 
 export const SPECS = {
@@ -259,10 +261,13 @@ export async function createCharacter(id, opts = {}) {
   const wp = (n) => (P[n] || (P[n] = new THREE.Vector3())).setFromMatrixPosition(bones[n].matrixWorld);
   const up = new THREE.Vector3();
   const torsoR = spec.torso || 0.16;
+  let extraColliders = null; // more shapes for the cloth to rest on (a horse's back)
   const colliders = () => {
     const pel = wp('pelvis'), neck = wp('neck_01');
     up.copy(pel).lerp(neck, 0.18);
+    const more = extraColliders ? extraColliders() : [];
     return [
+      ...more,
       { a: up, b: neck, r: torsoR },
       { a: pel, b: pel, r: torsoR + 0.04 },
       { a: wp('thigh_l'), b: wp('calf_l'), r: 0.095 },
@@ -446,7 +451,12 @@ export async function createCharacter(id, opts = {}) {
     if (A.jog) A.jog.timeScale = sp > WALK ? Math.min(1.8, Math.max(0.7, sp / 3.3)) : 1;
     mixer.update(dt);
     wrap.updateMatrixWorld(true);
-    if (opts.onStep) footfalls(dt, sp, st.grounded !== false);
+    // a pose laid over the animation (the rider's seat on a horse)
+    if (st.pose) {
+      st.pose(bones);
+      wrap.updateMatrixWorld(true);
+    }
+    if (opts.onStep && !st.pose) footfalls(dt, sp, st.grounded !== false);
     if (st.cloth !== false || !clothReady) {
       for (const c of clothes) c.update(dt, st.wind || 0);
       clothReady = true;
@@ -613,6 +623,7 @@ export async function createCharacter(id, opts = {}) {
   // speaking: talk with the hands (the sisters keep their own uncanny idles)
   const talk = (on) => setIdle(on && !/witch/.test(id) ? 'Idle_Talking_Loop' : spec.idle);
   return { root: wrap, update, settle, height: spec.height, id, bones, hold, stow, setIdle, sheathed, talk, perform, release, busy, probe,
+    clothColliders: (fn) => (extraColliders = fn),
     get action() {
       return cur ? cur.name : null;
     } };

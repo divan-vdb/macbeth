@@ -90,8 +90,9 @@ export function createCombat({ scene, camera, player, macbeth, heightAt, solids,
     }
     const set = BLOWS[w === 'sword' ? 'sword' : 'fists'];
     if (macbeth.busy()) {
-      // a press during a blow chains the next one in
-      if (kind === 'light') queued = 'light';
+      // a press during a blow is kept and follows it (a light press chains the combo;
+      // a heavy press waits for the swing to finish, so no blow is ever lost)
+      queued = kind === 'heavy' ? 'heavy' : queued || 'light';
       return;
     }
     let blow;
@@ -118,8 +119,9 @@ export function createCombat({ scene, camera, player, macbeth, heightAt, solids,
       done: () => {
         comboUntil = now() + 0.55;
         if (queued) {
+          const next = queued;
           queued = null;
-          attack('light');
+          attack(next);
         }
       },
     });

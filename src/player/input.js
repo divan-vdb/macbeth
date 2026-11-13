@@ -11,7 +11,7 @@ export function createInput(canvas, ui) {
   let zoom = 0, jumpQueued = false;
   // fighting: a click strikes, a held press is a heavy blow, the right button blocks
   let attackQueued = null, blockHeld = false, padAtk = { x: false, y: false };
-  const press = { id: null, t: 0, x: 0, y: 0, moved: false };
+  const press = { id: null, t: 0, x: 0, y: 0, moved: false, far: 0 };
   const stick = { x: 0, y: 0, id: null, ox: 0, oy: 0 };
 
   const typing = (e) => e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA');
@@ -36,7 +36,7 @@ export function createInput(canvas, ui) {
     drags.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (e.pointerType === 'mouse') {
       if (e.button === 2) blockHeld = true;
-      if (e.button === 0) Object.assign(press, { id: e.pointerId, t: performance.now(), x: e.clientX, y: e.clientY, moved: false });
+      if (e.button === 0) Object.assign(press, { id: e.pointerId, t: performance.now(), x: e.clientX, y: e.clientY, moved: false, far: 0 });
     }
   });
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -54,7 +54,10 @@ export function createInput(canvas, ui) {
       pinch = dist2;
       return;
     }
-    if (e.pointerId === press.id && Math.hypot(e.clientX - press.x, e.clientY - press.y) > 7) press.moved = true;
+    if (e.pointerId === press.id) {
+      press.far = Math.max(press.far, Math.hypot(e.clientX - press.x, e.clientY - press.y));
+      if (press.far > 7) press.moved = true;
+    }
     look.dx += e.clientX - d.x;
     look.dy += e.clientY - d.y;
     d.x = e.clientX;
@@ -66,7 +69,9 @@ export function createInput(canvas, ui) {
     if (e.pointerType === 'mouse' && e.button === 2) blockHeld = false;
     if (e.pointerId === press.id) {
       // a click (not a drag to look) strikes; held for a moment, it is a heavy blow
-      if (!press.moved && e.type === 'pointerup') attackQueued = performance.now() - press.t > 380 ? 'heavy' : 'light';
+      // (a held press forgives a small wobble of the hand: it only fails if it became a real drag)
+      const held = performance.now() - press.t > 380;
+      if (e.type === 'pointerup' && (!press.moved || (held && press.far < 40))) attackQueued = held ? 'heavy' : 'light';
       press.id = null;
     }
   };

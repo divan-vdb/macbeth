@@ -433,6 +433,34 @@ export function footstep({ speed = 1.7, side = 0, heavy = false, surface = 'heat
   later(0.6, () => out.disconnect());
 }
 
+// ---------- hoofbeats: a dull thud of an iron-shod hoof into peat and turf, with the
+// brush of the heather; sharper on the road. Front hooves land a touch lighter than the
+// hind, which drive. Quieter and more muffled with distance; panned to where she is.
+export function hoof({ gait = 'walk', front = true, pan = 0, dist = 0, surface = 'heath' } = {}) {
+  if (!ctx || !started) return;
+  const at = ctx.currentTime + 0.004;
+  const g = gait === 'gallop' ? 1.5 : gait === 'canter' ? 1.2 : 0.8;
+  const near = 1 / (1 + Math.max(0, dist - 4) * 0.12);
+  const level = 0.11 * g * (front ? 0.85 : 1) * near * rnd(0.85, 1.1);
+  if (level < 0.004) return;
+  const p = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+  const out = p || ctx.createGain();
+  if (p) p.pan.value = pan * 0.7;
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 5200 * near + 500;
+  out.connect(lp).connect(channel('effects'));
+  const road = surface === 'road' || surface === 'stone';
+  // the thud: body weight into the ground
+  noiseHit(at, { freq: rnd(90, 130), q: 0.9, peak: level * 1.6, attack: 0.004, decay: 0.12 + g * 0.03, brown: true, out });
+  tone(at, { freq: rnd(70, 90), to: 52, peak: level * 0.7, decay: 0.12, out });
+  // the strike of the hoof: a knock, harder on a road
+  noiseHit(at, { freq: road ? rnd(1400, 1900) : rnd(420, 620), q: road ? 3 : 1.4, peak: level * (road ? 0.9 : 0.55), attack: 0.002, decay: road ? 0.05 : 0.04, out });
+  // turf and heather torn up at speed
+  if (!road) noiseHit(at + 0.01, { type: 'highpass', freq: rnd(1600, 2600), q: 0.7, peak: level * 0.22 * g, attack: 0.008, decay: 0.07 + g * 0.03, out });
+  later(0.5, () => out.disconnect());
+}
+
 // ---------- channels: narration and character voices have their own volume, so
 // they can be muted while the world's sounds play on (settings come in Phase 2B)
 const channels = {};
@@ -713,6 +741,82 @@ export function sfx(name) {
         const lv = 0.05 * Math.min(1, (i + 2) / 10);
         noiseHit(at, { freq: rnd(320, 480), q: 1.2, peak: lv, decay: 0.06, brown: true, out: fx });
       }
+      break;
+    case 'snort': // a horse blows through her nose: a fluttering rush of breath
+      {
+        const n = ctx.createBufferSource();
+        n.buffer = noise.white;
+        const f = ctx.createBiquadFilter();
+        f.type = 'bandpass';
+        f.frequency.value = rnd(520, 700);
+        f.Q.value = 0.8;
+        const g = ctx.createGain();
+        g.gain.value = 0;
+        // the nostrils flutter: a quick tremble in the breath
+        const trem = ctx.createOscillator();
+        trem.frequency.value = rnd(26, 34);
+        const tg = ctx.createGain();
+        tg.gain.value = 0.045;
+        trem.connect(tg).connect(g.gain);
+        const e = ctx.createGain();
+        env(e, t, 0.9, 0.03, 0.42);
+        n.connect(f).connect(g).connect(e).connect(fx);
+        const base = ctx.createConstantSource ? ctx.createConstantSource() : null;
+        if (base) {
+          base.offset.value = 0.05;
+          base.connect(g.gain);
+          base.start(t);
+          base.stop(t + 0.6);
+        }
+        trem.start(t);
+        trem.stop(t + 0.6);
+        n.start(t, rnd(0, 1.5), 0.6);
+        noiseHit(t + 0.02, { freq: 160, q: 0.8, peak: 0.05, attack: 0.02, decay: 0.3, brown: true, out: fx });
+      }
+      break;
+    case 'whinny': // a short whinny: a bright, warbling neigh falling away
+      {
+        const o = ctx.createOscillator();
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(820, t);
+        o.frequency.linearRampToValueAtTime(1180, t + 0.12);
+        o.frequency.exponentialRampToValueAtTime(520, t + 1.0);
+        o.frequency.exponentialRampToValueAtTime(330, t + 1.35);
+        const vib = ctx.createOscillator();
+        vib.frequency.setValueAtTime(14, t);
+        vib.frequency.linearRampToValueAtTime(22, t + 1.2);
+        const vg = ctx.createGain();
+        vg.gain.setValueAtTime(40, t);
+        vg.gain.linearRampToValueAtTime(110, t + 1.0);
+        vib.connect(vg).connect(o.frequency);
+        const f1 = ctx.createBiquadFilter();
+        f1.type = 'bandpass';
+        f1.frequency.value = 1300;
+        f1.Q.value = 2.2;
+        const f2 = ctx.createBiquadFilter();
+        f2.type = 'lowpass';
+        f2.frequency.value = 3200;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.05, t + 0.06);
+        g.gain.setValueAtTime(0.05, t + 0.7);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+        o.connect(f1).connect(f2).connect(g).connect(fx);
+        o.start(t);
+        vib.start(t);
+        o.stop(t + 1.5);
+        vib.stop(t + 1.5);
+        noiseHit(t + 1.25, { freq: 600, q: 0.8, peak: 0.04, attack: 0.04, decay: 0.35, out: fx });
+      }
+      break;
+    case 'saddle': // a leather saddle takes a man's weight: creaks and the jingle of the bit
+      for (let i = 0; i < 4; i++) noiseHit(t + i * 0.09 + Math.random() * 0.04, { freq: rnd(380, 720), q: 9, peak: 0.05, attack: 0.01, decay: 0.08, out: fx });
+      noiseHit(t + 0.05, { freq: 160, q: 0.8, peak: 0.08, attack: 0.02, decay: 0.2, brown: true, out: fx });
+      for (const f of [2900, 4100, 5300]) tone(t + 0.12 + Math.random() * 0.05, { freq: f * rnd(0.97, 1.03), peak: 0.008, decay: 0.25, out: fx });
+      break;
+    case 'whistle': // Macbeth whistles for his horse: two rising notes
+      tone(t, { freq: 1500, to: 2300, peak: 0.035, attack: 0.03, decay: 0.22, out: fx });
+      tone(t + 0.3, { freq: 1700, to: 2600, peak: 0.04, attack: 0.03, decay: 0.32, out: fx });
       break;
     case 'pickup': // a stone or flask lifted from the heather
       noiseHit(t, { freq: 1800, q: 0.8, peak: 0.05, decay: 0.12, out: fx });

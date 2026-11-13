@@ -36,7 +36,7 @@ const SCROLLS = {
   },
 };
 
-export function createGame({ scene, camera, player, macbeth, heightAt, solids, standing, cauldronAt, fireAt, isTouch, folio, settings, isCine = () => false, story = null, side = null }) {
+export function createGame({ scene, camera, player, macbeth, heightAt, solids, standing, cauldronAt, fireAt, isTouch, folio, settings, isCine = () => false, story = null, side = null, mount = null }) {
   const S = {
     health: 100, maxHealth: 100, stamina: 100, maxStamina: 100,
     stones: 0, maxStones: 10, tonics: 0,
@@ -199,6 +199,7 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
   }
   function equip(k, quiet = false) {
     if (S.dead || modal) return;
+    if (mount && mount.mounted) return hud.toast('Not while you are in the saddle.', 'warn');
     if (!S.weapons[k]) return hud.toast(k === 'spear' ? 'You have no spear yet.' : 'You have none.', 'warn');
     if (k === S.equipped) return;
     const prev = S.equipped;
@@ -577,6 +578,7 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
       return t;
     },
     combat,
+    equip: (k, quiet) => equip(k, quiet),
     hurtFrom,
     // the yard's rack: a practice spear (or your own, fetched back)
     rackSpear() {
@@ -642,6 +644,15 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
         if (map.isOpen || settings.isOpen || isCine()) inp.lookX = inp.lookY = inp.zoom = 0;
         return inp;
       }
+      // in the saddle: the horse takes the controls; no blows or jumps from her back
+      if (mount && mount.mounted) {
+        if (inp.attack) tip('saddlefight', T('Get down from the saddle (E) to fight.', 'Get down from the saddle to fight.'));
+        inp.attack = null;
+        inp.block = false;
+        inp.jump = false;
+        combat.block(false);
+        return inp;
+      }
       if (S.stamina <= 0) exhausted = true;
       if (exhausted && S.stamina > S.maxStamina * 0.3) exhausted = false;
       if (exhausted) inp.run = false;
@@ -658,8 +669,11 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
       const p = player.position;
       const moving = player.speed;
       if (began) playTime += dt;
-      // stamina: running spends it, resting restores it
-      if (moving > 3.0) {
+      // stamina: running spends it, resting restores it (in the saddle, he rests)
+      const riding = mount && mount.mounted;
+      if (riding) {
+        S.stamina = Math.min(S.maxStamina, S.stamina + 14 * dt);
+      } else if (moving > 3.0) {
         S.stamina = Math.max(0, S.stamina - 15 * dt);
         sinceRun = 0;
         if (S.stamina < 30) tip('tired', 'Macbeth is short of breath: walk a while to recover.');
@@ -726,7 +740,9 @@ export function createGame({ scene, camera, player, macbeth, heightAt, solids, s
         first = false;
       }
       hud.compass(heading, pins);
-      hud.vitals(S.health, S.maxHealth, S.stamina, S.maxStamina);
+      // on horseback the bar shows her wind
+      if (riding) hud.vitals(S.health, S.maxHealth, mount.wind, 100);
+      else hud.vitals(S.health, S.maxHealth, S.stamina, S.maxStamina);
       hud.arsenal(S);
 
       // keep the save fresh

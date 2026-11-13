@@ -15,7 +15,11 @@ web models in assets/models.
    (src/characters/cast.js) and loads textures through <img> blob: URLs, which are allowed.
 4. `node build-dyes.mjs <sources> ../assets/models`: the dye files that recolour one outfit for
    another character (Ross, Angus).
-5. Before publishing, test under strict host rules: `python3 csp_server.py 4175` (serves the game
+5. `node build-animal.mjs <Animal.gltf> <out.glb> Idle,Walk,Gallop,...`: an animal from the Ultimate
+   Animated Animals pack (glTF folder), keeping only the clips the game plays (the horse:
+   Idle, Idle_2, Idle_Headlow, Eating, Walk, Gallop, Gallop_Jump, Jump_toIdle, Idle_HitReact1, Attack_Kick).
+   Then wrap it with tojson.mjs as above.
+6. Before publishing, test under strict host rules: `python3 csp_server.py 4175` (serves the game
    folder with a matching Content-Security-Policy), then open http://localhost:4175/.
 
 ## Text and voices

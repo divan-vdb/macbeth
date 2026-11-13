@@ -809,3 +809,15 @@ body.touch #btn-block { right: calc(112px + var(--safe-r)); bottom: calc(134px +
   .story .subs-say { font-size: 15px; }
   body.touch:not(.cine) .story .subs { bottom: calc(70px + var(--safe-b, 0px)); left: 40%; width: min(520px, 62vw); }
 }
+
+/* riding: no fighting from the saddle, so the fight buttons and Jump step aside;
+   on phones a Horse button whistles for her when she is out of reach */
+body.riding .fight-btns, body.riding .jump-btn { opacity: 0; pointer-events: none; }
+.horse-btn { display: none; }
+body.touch .horse-btn:not([hidden]) {
+  display: block; position: fixed; z-index: 4; right: calc(22px + var(--safe-r)); bottom: calc(228px + var(--safe-b));
+  width: 58px; height: 58px; border-radius: 50%; font-family: 'Cinzel', serif; font-weight: 700; font-size: 11px; letter-spacing: .04em;
+  color: #f3e3bd; background: radial-gradient(circle at 40% 35%, rgba(92, 64, 34, .88), rgba(36, 24, 12, .88));
+  border: 1.5px solid rgba(232, 198, 106, .75); box-shadow: 0 4px 14px rgba(0,0,0,.5); touch-action: manipulation;
+}
+body.cine .horse-btn, body.paused .horse-btn { opacity: 0; pointer-events: none; }

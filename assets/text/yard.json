@@ -52,9 +52,33 @@
 "key": "cap.spear",
 "who": "The Captain",
 "lines": [
-"A boar won't stand still while you take your aim, but that'll do. Last of all, stones. Fill your pouch from the basket, and break me three of those pots."
+"A boar won't stand still while you take your aim, but that'll do. Now, stones. Fill your pouch from the basket, and break me three of those pots."
 ],
-"dur": 8.9
+"dur": 8.51
+},
+{
+"key": "cap.horse",
+"who": "The Captain",
+"lines": [
+"Ha! Not one pot left whole. One last lesson, my lord. A soldier who can't sit a horse is only half a soldier. Your mare is tied at the rail, just north of the fence. Go to her near side, the left, take up the reins, and up you get."
+],
+"dur": 14.87
+},
+{
+"key": "cap.mounted",
+"who": "The Captain",
+"lines": [
+"There. Sit deep, and keep your heels down. Walk her on, then let her canter. Now take her through my flags, every one of them, and in their order."
+],
+"dur": 8.64
+},
+{
+"key": "cap.gallop",
+"who": "The Captain",
+"lines": [
+"That's it! Give her her head, my lord! Let her fly!"
+],
+"dur": 2.65
 },
 {
 "key": "cap.done",

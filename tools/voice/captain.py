@@ -21,7 +21,10 @@ LINES = [
     ('cap.bag', "Ha! Block it, my lord, or step aside. The bag forgives. A Norway axe won't."),
     ('cap.block', "Good. You'll live another day. The spear, now. Take one from the rack, stand behind the rope, and put it in the straw."),
     ('cap.gold', "Right in the gold! I'd not like to be the boar that meets that."),
-    ('cap.spear', "A boar won't stand still while you take your aim, but that'll do. Last of all, stones. Fill your pouch from the basket, and break me three of those pots."),
+    ('cap.spear', "A boar won't stand still while you take your aim, but that'll do. Now, stones. Fill your pouch from the basket, and break me three of those pots."),
+    ('cap.horse', "Ha! Not one pot left whole. One last lesson, my lord. A soldier who can't sit a horse is only half a soldier. Your mare is tied at the rail, just north of the fence. Go to her near side, the left, take up the reins, and up you get."),
+    ('cap.mounted', "There. Sit deep, and keep your heels down. Walk her on, then let her canter. Now take her through my flags, every one of them, and in their order."),
+    ('cap.gallop', "That's it! Give her her head, my lord! Let her fly!"),
     ('cap.done', "There's nothing more this old man can teach you. Take these for your trouble. Go on, my lord, the heath is waiting. And mind... a good soldier keeps his sword for his enemies."),
     ('cap.again', "Back again, my lord? The straw men are always ready for you."),
 ]

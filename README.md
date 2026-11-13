@@ -28,9 +28,11 @@ The game was brought to life through a collective approach, bringing together co
   - a heavy blow;
   - blocking the swinging sandbag of a quintain;
   - casting spears from the line into straw butts;
-  - smashing clay pots with stones.
+  - smashing clay pots with stones;
+  - and last, horsemanship: mount your mare at the hitching rail and ride her through his course of flagged gates.
 
   Every target rocks, sheds straw or wood chips, and sounds true to what it is made of. Thrown spears stick where they land and can be pulled out again.
+- **Ride.** Macbeth's dark bay mare is saddled and bridled in his colours. Mount her from the near side, walk her on, canter, and spur her to a gallop until she is blown. Her hoofbeats follow her legs, and she comes when you whistle.
 - **Feel the theatre.** Each scene opens with velvet curtains and its title. An original score follows the story: a fiddle lament for the heath, an eerie choir for the witches, harp and cello for the Old Man's hearth, pipes and drums for the yard, and rising horns for the prophecy. The music dips whenever someone speaks.
 - **Play it.** Ravens bring scrolls with tasks and tips.
   - Gather stones, take up a spear, find a healer's tonic and ready your sword.
@@ -47,9 +49,10 @@ More is on the way: riding (mount a horse, ride through the posts), fist fights 
   - E to take or read, 1–4 for weapons, Q to drink a tonic, M for the map
   - Click to strike (F); hold the click and let go for a heavy blow (R); hold the right button to block (V)
   - With a spear or stones ready, aim with the view and click to throw
+  - On horseback: E to mount or dismount, W to walk on (steer with A and D or the view), hold Shift to canter and keep holding to gallop; H whistles for your horse
   - P (or the pause button) pauses at any moment; in a scene, Esc pauses too
   - In a scene, Space or Enter skips to the next line
-- **Phone:** left thumb to walk (push further to run), drag to look, pinch to zoom. Tap Strike to swing (hold it for a heavy blow, or to throw), and hold Block to guard. The pause button is at the top.
+- **Phone:** left thumb to walk (push further to run), drag to look, pinch to zoom. Tap Strike to swing (hold it for a heavy blow, or to throw), and hold Block to guard. In the saddle, push the stick where you want to go, to its edge to canter, and hold it there to gallop; the Horse button whistles for her. The pause button is at the top.
 - **Gamepad:** X strikes, Y is the heavy blow, LB or LT blocks.
 
 ## Run it on your own computer
@@ -69,6 +72,7 @@ Then open http://localhost:8080. You'll need an internet connection, because the
 - Sound effects, wind, fire and thunder are synthesised live with the Web Audio API.
 - The score is composed as MIDI in Python and played with FluidSynth through the FluidR3 GM sound font (MIT).
 - Characters are built from Quaternius's CC0 modular characters, re-coloured and costumed in code. Cloaks and gowns are simulated cloth.
+- The horse is from Quaternius's CC0 Ultimate Animated Animals; her saddle, saddle cloth, bridle and reins are built in code, and the rider's seat is laid over the animation.
 - Voices are recorded with the open [Kokoro](https://github.com/thewh1teagle/kokoro-onnx) speech model (Apache 2.0). Each character has its own blend of voices, then is aged and shaped with the [WORLD](https://github.com/JeremyCCHsu/Python-Wrapper-for-World-Vocoder) vocoder: the witches' rasp, croak and tremor, the Old Man's breath and waver.
 - Models and voices are stored as base64 inside `.json` files, so they load from any static host.
 

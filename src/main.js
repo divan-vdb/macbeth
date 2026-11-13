@@ -25,6 +25,7 @@ import { createStage } from './story/stage.js';
 import { createAct1 } from './story/act1.js';
 import { buildYard } from './world/yard.js';
 import { createYardQuest } from './story/yardquest.js';
+import { createRiding, HITCH } from './game/riding.js';
 
 const $ = (id) => document.getElementById(id);
 const diag = { renderer: $('d-renderer'), physics: $('d-physics'), fps: $('d-fps'), bodies: $('d-bodies'), screen: $('d-screen'), quality: $('d-quality'), error: $('d-error') };
@@ -128,7 +129,7 @@ async function main() {
   const mist = createMist(scene, heightAt);
   // the Captain's training yard, west of the stones on a level stretch of heath. Its targets
   // join the fighting once the game exists (they wait in a queue until then).
-  let game = null, yardQuest = null, player = null;
+  let game = null, yardQuest = null, player = null, riding = null;
   const yardTargets = [];
   const yardCentre = new THREE.Vector3(-20, 0, 6);
   const yard = buildYard({
@@ -264,7 +265,14 @@ async function main() {
         folio: folioApi, settings,
         isCine: () => !!(director && director.cine),
         story: { get: () => (act1 ? act1.get() : null), set: (v) => act1 && act1.set(v) },
-        side: { get: () => (yardQuest ? yardQuest.get() : null), set: (v) => yardQuest && yardQuest.set(v) },
+        side: {
+          get: () => (yardQuest ? { ...yardQuest.get(), horse: riding ? riding.get() : null } : null),
+          set: (v) => {
+            if (riding && v) riding.set(v.horse);
+            if (yardQuest) yardQuest.set(v);
+          },
+        },
+        mount: { get mounted() { return !!(riding && riding.mounted); }, get wind() { return riding ? riding.wind : 100; } },
       });
       for (const t of yardTargets) game.combat.addTarget(t);
       // the play, staged: lines, cameras, the Folio writing itself
@@ -275,8 +283,14 @@ async function main() {
       });
       scene.add(act1.roadBeacon.group);
       director.addLines('yard', yardLines && yardLines.yard);
-      yardQuest = createYardQuest({ game, director, yard, stage, player, loadActor, isTouch });
-      if (/[?&]debug/.test(location.search)) window.__story = { act1, director, stage, folio: folioApi, yard };
+      // Macbeth's mare at the rail north of the yard, and the Captain's riding course
+      riding = createRiding({
+        scene, heightAt, RAPIER, world, player, macbeth: macbethChar, game, camera, isTouch, narrow,
+        onEvent: (type, d) => yardQuest && yardQuest.onEvent(type, d),
+      });
+      riding.ready.catch((err) => showError('Horse: ' + (err && err.message ? err.message : err)));
+      yardQuest = createYardQuest({ game, director, yard, stage, player, loadActor, isTouch, riding, hitch: new THREE.Vector3(HITCH.x, 0, HITCH.z) });
+      if (/[?&]debug/.test(location.search)) window.__story = { act1, director, stage, folio: folioApi, yard, riding, yardQuest };
     } catch (err) {
       showError('Game: ' + (err && err.message ? err.message : err));
     }
@@ -512,7 +526,13 @@ async function main() {
 
     wind += (audio.windLevel() - wind) * Math.min(1, dt * 1.5);
     grass.wind.value = wind;
+    // a scene, or a fall, takes Macbeth out of the saddle (and his mare out of the shot)
+    if (riding && riding.mounted && ((director && director.cine) || (game && game.state.dead))) {
+      riding.dismount(true);
+      if (director && director.cine) riding.sendAway();
+    }
     if (player) player.frame(dt, wind);
+    if (riding) riding.update(dt);
     if (game) game.update(dt);
     // the rest of the cast (characters far from the camera skip their cloth simulation)
     if (stage) stage.update(dt, wind, camera);

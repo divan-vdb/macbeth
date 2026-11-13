@@ -23,6 +23,7 @@ interactive online game.
 | Part | By | Licence |
 | --- | --- | --- |
 | Character models and animations (Modular Characters, Universal Animation Library) | Quaternius | CC0 1.0 |
+| The horse and her animations (Ultimate Animated Animals) | Quaternius | CC0 1.0 |
 | three.js (3D rendering) | three.js authors | MIT |
 | Rapier (physics) | Dimforge | Apache 2.0 |
 | Kokoro-82M speech model, kokoro-onnx (voices) | hexgrad; thewh1teagle | Apache 2.0; MIT |
